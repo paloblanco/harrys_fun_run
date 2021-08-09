@@ -19,33 +19,9 @@ function input_init()
         if key=='up' then upkey = false end
         if key=='down' then downkey = false end
     end
-    -- function lovr.keypressed(left)
-    --     leftkey=true
-    -- end
-    -- function lovr.keyreleased(left)
-    --     leftkey=false
-    -- end
-    -- function lovr.keypressed(up)
-    --     upkey=true
-    -- end
-    -- function lovr.keyreleased(up)
-    --     upkey=false
-    -- end
-    -- function lovr.keypressed(down)
-    --     downkey=true
-    -- end
-    -- function lovr.keyreleased(down)
-    --     downkey=false
-    -- end
 end
 
 function input_update()
-    -- rightkey = lovr.keypressed('right')
-    -- leftkey = lovr.keypressed('left')
-    -- upkey = lovr.keypressed('up')
-    -- downkey = lovr.keypressed('down')
-    -- xkey = lovr.keypressed('x')
-    -- zkey = lovr.keypressed('z')
 end
 
 function player_init()
@@ -78,7 +54,8 @@ function player_update(dt)
 end
 
 function player_draw()
-    lovr.graphics.cube('line',p1.x,p1.y,p1.z,.5,p1.angle,0,1,0)
+    lovr.graphics.setColor(.3,.8,1)
+    lovr.graphics.cube('fill',p1.x,p1.y,p1.z,.5,p1.angle,0,1,0)
 end
 
 -->8 Level
@@ -118,6 +95,7 @@ function lovr.update(dt)
 end
 
 function lovr.draw()
+    lovr.graphics.setColor()
     player_draw()
     level_draw()
     cam_draw()
