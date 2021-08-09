@@ -1,3 +1,29 @@
+shader = require 'shader'
+
+-->8 Convenience functions
+color_table = {
+    0x000000,-- (0, 0, 0) black
+    0x1d2b53,-- (29, 43, 83) dark-blue
+    0x7e2553,-- (126, 37, 83) dark-purple
+    0x008751,-- (0, 135, 81) dark-green
+    0xab5236,-- (171, 82, 54) brown
+    0x5f574f,-- (95, 87, 79) dark-gray
+    0xc2c3c7,-- (194, 195, 199) light-gray
+    0xfff1e8,-- (255, 241, 232) white
+    0xff004d,-- (255, 0, 77) red
+    0xffa300,-- (255, 163, 0) orange
+    0xffec27,-- (255, 236, 39) yellow
+    0x00e436,-- (0, 228, 54) green
+    0x29adff,-- (41, 173, 255) blue
+    0x83769c,-- (131, 118, 156) indigo
+    0xff77a8,-- (255, 119, 168) pink
+    0xffccaa,-- (255, 204, 170) peach
+}
+function setColor(ix)
+    -- sets color, pico8 style
+    lovr.graphics.setColor(color_table[ix+1])
+end
+
 function draw_cam_info()
     lovr.graphics.print('Hello World',0,1.7,-3,.25)
     for ix,val in pairs({lovr.graphics.getViewPose(1)}) do
@@ -27,7 +53,7 @@ end
 function player_init()
     p1={}
     p1.x=0
-    p1.y=1.7
+    p1.y=1
     p1.z=-1
     p1.angle=0
     p1.dx,p1.dy,p1.dz=0,0,0
@@ -54,26 +80,54 @@ function player_update(dt)
 end
 
 function player_draw()
-    lovr.graphics.setColor(.3,.8,1)
-    lovr.graphics.cube('fill',p1.x,p1.y,p1.z,.5,p1.angle,0,1,0)
+    setColor(12)
+    lovr.graphics.cube('fill',p1.x,p1.y+.25,p1.z,.5,p1.angle,0,1,0)
 end
 
 -->8 Level
 function level_init()
+    ground={}
+    ground.x0=-10
+    ground.y0=0
+    ground.z0=-10
+    ground.x1=10
+    ground.y1=1
+    ground.z1=10
+
+    ground.xmid = (ground.x0+ground.x1)/2
+    ground.ymid = (ground.y0+ground.y1)/2
+    ground.zmid = (ground.z0+ground.z1)/2
+    ground.dx = math.abs(ground.x0-ground.x1)
+    ground.dy = math.abs(ground.y0-ground.y1)
+    ground.dz = math.abs(ground.z0-ground.z1)
 end
 
 function level_update()
 end
 
 function level_draw()
+    setColor(3)
+    lovr.graphics.box('fill',ground.xmid,ground.ymid,ground.zmid,ground.dx,ground.dy,ground.dz,0,0,1,0)
 end
 
 -->8 Camera
 function cam_init()
-    lovr.graphics.setViewPose(1,0,2,4,0,0,1,0)
+    camx=p1.x
+    camy=p1.y+2
+    camz=p1.z+3
+    camangle=-math.pi*0.125
+    function resetCam()
+        lovr.graphics.setViewPose(1,camx,camy,camz,camangle,1,0,0)
+    end
+    resetCam()
 end
 
 function cam_update()
+    camx = camx + (p1.x-camx)/5
+    camy = camy + (p1.y+2-camy)/5
+    camz = camz + (p1.z+3-camz)/5
+
+    resetCam()
 end
 
 function cam_draw()
@@ -85,6 +139,7 @@ function lovr.load()
     player_init()
     level_init()
     cam_init()
+    lovr.graphics.setShader(shader)
 end
 
 function lovr.update(dt)
@@ -95,7 +150,7 @@ function lovr.update(dt)
 end
 
 function lovr.draw()
-    lovr.graphics.setColor()
+    lovr.graphics.setBackgroundColor(color_table[2])
     player_draw()
     level_draw()
     cam_draw()
