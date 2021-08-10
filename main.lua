@@ -60,7 +60,7 @@ end
 
 player = thing:new{
     x=0,
-    y=1,
+    y=1.5,
     z=9,
     angle=0,
     dx=0,
@@ -111,7 +111,7 @@ function player:update(dt,blocks)
     self.x = self.x + self.dx
     
     self.grounded=false
-    self.dy = self.dy + .01*dt
+    self.dy = self.dy - .01*dt
     self.y = self.y + self.dy
 
     --collide!
@@ -119,12 +119,13 @@ function player:update(dt,blocks)
 end
 
 function player:collide_with_blocks(blocktable)
-    for i,b in pairs(self.onblocks) do
+    -- for i,b in pairs(self.onblocks) do
+    for i,b in pairs(blocktable) do
         if (self.x + self.size*.5 > b.x0) and
             (self.x - self.size*.5 < b.x1) and
             (self.z + self.size*.5 > b.z0) and
             (self.z - self.size*.5 < b.z1) then
-            if self.dy > 0 then
+            if self.dy < 0 then
                 if (self.y < b.y1) and
                 (self.y+self.size > b.y0) then
                     self.grounded=true
