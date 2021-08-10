@@ -102,7 +102,8 @@ function player_draw()
                     p1.z-.25*math.sin(p1.angle),
                     .05,.25,.35,p1.angle,0,1,0)
     setColor(7)
-    --lovr.graphics.cube('fill',p1.x,p1.y)
+    lovr.graphics.cube('fill',p1.x+.1*math.sin(p1.angle),p1.y+.05,
+                p1.z+.1*math.cos(p1.angle),.1,p1.angle,0,1,0)
 end
 
 -->8 Level
