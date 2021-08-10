@@ -1,5 +1,6 @@
 -->8 imports
 shader = require 'shader'
+thing = require 'thing'
 
 -->8 Convenience functions
 color_table = {
@@ -51,73 +52,74 @@ end
 function input_update()
 end
 
-function player_init()
-    p1={}
-    p1.x=0
-    p1.y=1
-    p1.z=9
-    p1.angle=0
-    p1.dx,p1.dy,p1.dz=0,0,0
-    p1.wakltimer=0
-end
+player = thing:new{
+    x=0,
+    y=1,
+    z=9,
+    angle=0,
+    dx=0,
+    dy=0,
+    dz=0,
+    wakltimer=0
+}
 
-function player_update(dt)
-    p1.dx=0
-    p1.dz=0
+function player:update(dt)
+    self.dx=0
+    self.dz=0
 
     if upkey then
-        p1.dz = -2*dt
+        self.dz = -2*dt
     elseif downkey then
-        p1.dz = 2*dt
+        self.dz = 2*dt
     end
 
     if rightkey then
-        p1.dx = 2*dt
+        self.dx = 2*dt
     elseif leftkey then
-        p1.dx = -2*dt
+        self.dx = -2*dt
     end
 
-    if ((p1.dx ~= 0) and (p1.dz ~= 0)) then
-        p1.dx = p1.dx * 0.707
-        p1.dz = p1.dz * 0.707
+    if ((self.dx ~= 0) and (self.dz ~= 0)) then
+        self.dx = self.dx * 0.707
+        self.dz = self.dz * 0.707
     end
 
     if (upkey or downkey or rightkey or leftkey) then
-        p1.walktimer = (p1.walktimer + dt)%1
-        p1.angle = math.atan2(-p1.dz/dt,p1.dx/dt)
+        self.walktimer = (self.walktimer + dt)%1
+        self.angle = math.atan2(-self.dz/dt,self.dx/dt)
     else
-        p1.walktimer = 0
+        self.walktimer = 0
     end
 
-    p1.z = p1.z + p1.dz
-    p1.x = p1.x + p1.dx
+    self.z = self.z + self.dz
+    self.x = self.x + self.dx
 end
 
-function player_draw()
+function player:draw()
     --body and mouth
     setColor(12)
-    lovr.graphics.cube('fill',p1.x,p1.y+.45+.05*math.sin(p1.walktimer*12*math.pi),p1.z,.5,p1.angle,0,1,0)
+    lovr.graphics.cube('fill',self.x,self.y+.45+.05*math.sin(self.walktimer*12*math.pi),self.z,.5,self.angle,0,1,0)
     setColor(0)
-    lovr.graphics.box('fill',p1.x+.25*math.cos(p1.angle),
-                    p1.y+.45+.05*math.sin(p1.walktimer*12*math.pi), 
-                    p1.z-.25*math.sin(p1.angle),
-                    .05,.25,.35,p1.angle,0,1,0)
+    lovr.graphics.box('fill',self.x+.25*math.cos(self.angle),
+                    self.y+.45+.05*math.sin(self.walktimer*12*math.pi), 
+                    self.z-.25*math.sin(self.angle),
+                    .05,.25,.35,self.angle,0,1,0)
     --legs
     setColor(7)
-    lovr.graphics.cube('fill',p1.x+.1*math.sin(p1.angle) + .3*math.sin(p1.walktimer*6*math.pi)*math.cos(p1.angle),
-                p1.y+.05 + .1*math.abs(math.sin(p1.walktimer*6*math.pi)),
-                p1.z+.1*math.cos(p1.angle) -.3*math.sin(p1.walktimer*6*math.pi)*math.sin(p1.angle),
-                .1,p1.angle,0,1,0)
-    lovr.graphics.cube('fill',p1.x-.1*math.sin(p1.angle) + .3*math.sin(-p1.walktimer*6*math.pi)*math.cos(p1.angle),
-                p1.y+.05+ .1*math.abs(math.sin(p1.walktimer*6*math.pi)),
-                p1.z-.1*math.cos(p1.angle) -.3*math.sin(-p1.walktimer*6*math.pi)*math.sin(p1.angle),
-                .1,p1.angle,0,1,0)
+    lovr.graphics.cube('fill',self.x+.1*math.sin(self.angle) + .3*math.sin(self.walktimer*6*math.pi)*math.cos(self.angle),
+                self.y+.05 + .1*math.abs(math.sin(self.walktimer*6*math.pi)),
+                self.z+.1*math.cos(self.angle) -.3*math.sin(self.walktimer*6*math.pi)*math.sin(self.angle),
+                .1,self.angle,0,1,0)
+    lovr.graphics.cube('fill',self.x-.1*math.sin(self.angle) + .3*math.sin(-self.walktimer*6*math.pi)*math.cos(self.angle),
+                self.y+.05+ .1*math.abs(math.sin(self.walktimer*6*math.pi)),
+                self.z-.1*math.cos(self.angle) -.3*math.sin(-self.walktimer*6*math.pi)*math.sin(self.angle),
+                .1,self.angle,0,1,0)
     
     --arms
-    lovr.graphics.cube('fill',p1.x+.3*math.sin(p1.angle),p1.y+.45+.05*math.sin(p1.walktimer*12*math.pi),
-                p1.z+.3*math.cos(p1.angle),.1,p1.angle,0,1,0)
-    lovr.graphics.cube('fill',p1.x-.3*math.sin(p1.angle),p1.y+.45+.05*math.sin(p1.walktimer*12*math.pi),
-                p1.z-.3*math.cos(p1.angle),.1,p1.angle,0,1,0)
+    lovr.graphics.cube('fill',self.x+.3*math.sin(self.angle),self.y+.45+.05*math.sin(self.walktimer*12*math.pi),
+                self.z+.3*math.cos(self.angle),.1,self.angle,0,1,0)
+    lovr.graphics.cube('fill',self.x-.3*math.sin(self.angle),self.y+.45+.05*math.sin(self.walktimer*12*math.pi),
+                self.z-.3*math.cos(self.angle),.1,self.angle,0,1,0)
 end
 
 -->8 Level
@@ -147,10 +149,11 @@ function level_draw()
 end
 
 -->8 Camera
-function cam_init()
-    camx=p1.x
-    camy=p1.y+2
-    camz=p1.z+3
+function cam_init(target)
+    cam_target=target
+    camx=cam_target.x
+    camy=cam_target.y+2
+    camz=cam_target.z+3
     camangle=-math.pi*0.125
     function resetCam()
         lovr.graphics.setViewPose(1,camx,camy,camz,camangle,1,0,0)
@@ -159,9 +162,9 @@ function cam_init()
 end
 
 function cam_update()
-    camx = camx + (p1.x-camx)/5
-    camy = camy + (p1.y+2-camy)/5
-    camz = camz + (p1.z+3-camz)/5
+    camx = camx + (cam_target.x-camx)/5
+    camy = camy + (cam_target.y+2-camy)/5
+    camz = camz + (cam_target.z+3-camz)/5
 
     resetCam()
 end
@@ -172,22 +175,24 @@ end
 -->8 Game Loop
 function lovr.load()
     input_init()
-    player_init()
+    p1 = player:new()
     level_init()
-    cam_init()
+    cam_init(p1)
     lovr.graphics.setShader(shader)
 end
 
 function lovr.update(dt)
     input_update()
-    player_update(dt)
+    -- player_update(dt)
+    p1:update(dt)
     level_update(dt)
     cam_update(dt)
 end
 
 function lovr.draw()
     lovr.graphics.setBackgroundColor(color_table[2])
-    player_draw()
+    -- player_draw()
+    p1:draw()
     level_draw()
     cam_draw()
 end
