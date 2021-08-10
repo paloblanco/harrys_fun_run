@@ -26,6 +26,10 @@ function set_color(ix)
     lovr.graphics.setColor(color_table[ix+1])
 end
 
+function add(t,v)
+    table.insert(t,v)
+end
+
 function draw_cam_info()
     lovr.graphics.print('Hello World',0,1.7,-3,.25)
     for ix,val in pairs({lovr.graphics.getViewPose(1)}) do
@@ -40,12 +44,14 @@ function input_init()
         if key=='left' then leftkey = true end
         if key=='up' then upkey = true end
         if key=='down' then downkey = true end
+        if key=='z' then zkey = true end
     end
     function lovr.keyreleased(key)
         if key=='right' then rightkey = false end
         if key=='left' then leftkey = false end
         if key=='up' then upkey = false end
         if key=='down' then downkey = false end
+        if key=='z' then zkey = false end
     end
 end
 
@@ -60,12 +66,13 @@ player = thing:new{
     dx=0,
     dy=0,
     dz=0,
+    size=.5,
     wakltimer=0,
-    grounded=0,
+    grounded=false,
     onblocks={} -- table of all the blocks that your y axis is on top of
 }
 
-function player:update(dt)
+function player:update(dt,blocks)
     self.dx=0
     self.dz=0
 
@@ -93,14 +100,101 @@ function player:update(dt)
         self.walktimer = 0
     end
 
+    if (zkey and self.grounded) then
+        self.dy = 2*dt
+        self.grounded = false
+    end
+
+
+    -- move!
     self.z = self.z + self.dz
     self.x = self.x + self.dx
+    
+    self.grounded=false
+    self.dy = self.dy + .01*dt
+    self.y = self.y + self.dy
+
+    --collide!
+    self:collide_with_blocks(blocks)
 end
 
 function player:collide_with_blocks(blocktable)
+    for i,b in pairs(self.onblocks) do
+        if (self.x + self.size*.5 > b.x0) and
+            (self.x - self.size*.5 < b.x1) and
+            (self.z + self.size*.5 > b.z0) and
+            (self.z - self.size*.5 < b.z1) then
+            if self.dy > 0 then
+                if (self.y < b.y1) and
+                (self.y+self.size > b.y0) then
+                    self.grounded=true
+                    self.y = b.y1
+                    self.dy=0
+                end
+            end
+        else
+            --remove?
+        end
+    end
+    self.onblocks = {}
     for i,b in pairs(blocktable) do
         if self.dx > 0 then
-            -- if true
+            if (self.x + self.size*.5 > b.x0) and
+            (self.x + self.size*.5 < b.x1) and
+            (self.z + self.size*.5 > b.z0) and
+            (self.z - self.size*.5 < b.z1) then
+                if (self.y < b.y1) and
+                (self.y+self.size > b.y0) then
+                    -- bump to the left
+                    self.x = b.x0-self.size*0.5
+                    self.dx=0
+                else
+                    add(self.onblocks,b)
+                end
+            end
+        elseif self.dx < 0 then
+            if (self.x - self.size*.5 > b.x0) and
+            (self.x - self.size*.5 < b.x1) and
+            (self.z + self.size*.5 > b.z0) and
+            (self.z - self.size*.5 < b.z1) then
+                if (self.y < b.y1) and
+                (self.y+self.size > b.y0) then
+                    -- bump to the right
+                    self.x = b.x1+self.size*0.5
+                    self.dx=0
+                else
+                    add(self.onblocks,b)
+                end
+            end
+        end
+        if self.dz > 0 then
+            if (self.x + self.size*.5 > b.x0) and
+            (self.x - self.size*.5 < b.x1) and
+            (self.z + self.size*.5 > b.z0) and
+            (self.z + self.size*.5 < b.z1) then
+                if (self.y < b.y1) and
+                (self.y+self.size > b.y0) then
+                    -- bump up
+                    self.z = b.z0-self.size*0.5
+                    self.dz=0
+                else
+                    add(self.onblocks,b)
+                end
+            end
+        elseif self.dz < 0 then
+            if (self.x + self.size*.5 > b.x0) and
+            (self.x - self.size*.5 < b.x1) and
+            (self.z - self.size*.5 > b.z0) and
+            (self.z - self.size*.5 < b.z1) then
+                if (self.y < b.y1) and
+                (self.y+self.size > b.y0) then
+                    -- bump down
+                    self.x = b.z1+self.size*0.5
+                    self.dz=0
+                else
+                    add(self.onblocks,b)
+                end
+            end
         end
     end
 end
@@ -220,7 +314,7 @@ end
 function lovr.update(dt)
     input_update()
     -- player_update(dt)
-    p1:update(dt)
+    p1:update(dt, level_blocks)
     level_update(dt)
     cam_update(dt)
 end
