@@ -45,8 +45,8 @@ shader = lovr.graphics.newShader('standard', {
     }
 })
 
-shader:send('lovrLightDirection', { -1, -1, -1 })
+shader:send('lovrLightDirection', { -1, -1, -1.5 })
 shader:send('lovrLightColor', { .9, .9, .8, 1.0 })
-shader:send('lovrExposure', 2)
+shader:send('lovrExposure', 10)
 
 return shader

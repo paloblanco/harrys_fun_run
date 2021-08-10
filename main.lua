@@ -1,3 +1,4 @@
+-->8 imports
 shader = require 'shader'
 
 -->8 Convenience functions
@@ -57,6 +58,7 @@ function player_init()
     p1.z=-1
     p1.angle=0
     p1.dx,p1.dy,p1.dz=0,0,0
+    p1.wakltimer=0
 end
 
 function player_update(dt)
@@ -64,15 +66,27 @@ function player_update(dt)
     p1.dz=0
 
     if upkey then
-        p1.dz = -1*dt
+        p1.dz = -2*dt
     elseif downkey then
-        p1.dz = 1*dt
+        p1.dz = 2*dt
     end
 
     if rightkey then
-        p1.dx = 1*dt
+        p1.dx = 2*dt
     elseif leftkey then
-        p1.dx = -1*dt
+        p1.dx = -2*dt
+    end
+
+    if ((p1.dx ~= 0) and (p1.dz ~= 0)) then
+        p1.dx = p1.dx * 0.707
+        p1.dz = p1.dz * 0.707
+    end
+
+    if (upkey or downkey or rightkey or leftkey) then
+        p1.walktimer = (p1.walktimer + dt)%1
+        p1.angle = math.atan2(-p1.dz/dt,p1.dx/dt)
+    else
+        p1.walktimer = 0
     end
 
     p1.z = p1.z + p1.dz
@@ -81,7 +95,14 @@ end
 
 function player_draw()
     setColor(12)
-    lovr.graphics.cube('fill',p1.x,p1.y+.25,p1.z,.5,p1.angle,0,1,0)
+    lovr.graphics.cube('fill',p1.x,p1.y+.45+.05*math.sin(p1.walktimer*8*math.pi),p1.z,.5,p1.angle,0,1,0)
+    setColor(0)
+    lovr.graphics.box('fill',p1.x+.25*math.cos(p1.angle),
+                    p1.y+.45+.05*math.sin(p1.walktimer*8*math.pi), 
+                    p1.z-.25*math.sin(p1.angle),
+                    .05,.25,.35,p1.angle,0,1,0)
+    setColor(7)
+    --lovr.graphics.cube('fill',p1.x,p1.y)
 end
 
 -->8 Level
