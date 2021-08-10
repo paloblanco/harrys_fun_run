@@ -123,28 +123,42 @@ function player:draw()
 end
 
 -->8 Level
-function level_init()
-    ground={}
-    ground.x0=-10
-    ground.y0=0
-    ground.z0=-10
-    ground.x1=10
-    ground.y1=1
-    ground.z1=10
 
-    ground.xmid = (ground.x0+ground.x1)/2
-    ground.ymid = (ground.y0+ground.y1)/2
-    ground.zmid = (ground.z0+ground.z1)/2
-    ground.dx = math.abs(ground.x0-ground.x1)
-    ground.dy = math.abs(ground.y0-ground.y1)
-    ground.dz = math.abs(ground.z0-ground.z1)
+block = thing:new{
+    x0=-1,
+    y0=-1,
+    z0=-1,
+    x1=1,
+    y1=1,
+    z1=1,
+    color=3
+}
+
+function block:init()
+    self.xmid = (self.x0+self.x1)/2
+    self.ymid = (self.y0+self.y1)/2
+    self.zmid = (self.z0+self.z1)/2
+    self.dx = math.abs(self.x0-self.x1)
+    self.dy = math.abs(self.y0-self.y1)
+    self.dz = math.abs(self.z0-self.z1)
+end
+
+function level_init()
+    ground=block:new{
+        x0=-10,
+        y0=0,
+        z0=-10,
+        x1=10,
+        y1=1,
+        z1=10,
+    }
 end
 
 function level_update()
 end
 
 function level_draw()
-    setColor(3)
+    setColor(ground.color)
     lovr.graphics.box('fill',ground.xmid,ground.ymid,ground.zmid,ground.dx,ground.dy,ground.dz,0,0,1,0)
 end
 
