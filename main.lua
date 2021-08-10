@@ -21,7 +21,7 @@ color_table = {
     0xff77a8,-- (255, 119, 168) pink
     0xffccaa,-- (255, 204, 170) peach
 }
-function setColor(ix)
+function set_color(ix)
     -- sets color, pico8 style
     lovr.graphics.setColor(color_table[ix+1])
 end
@@ -60,7 +60,9 @@ player = thing:new{
     dx=0,
     dy=0,
     dz=0,
-    wakltimer=0
+    wakltimer=0,
+    grounded=0,
+    onblocks={} -- table of all the blocks that your y axis is on top of
 }
 
 function player:update(dt)
@@ -95,17 +97,25 @@ function player:update(dt)
     self.x = self.x + self.dx
 end
 
+function player:collide_with_blocks(blocktable)
+    for i,b in pairs(blocktable) do
+        if self.dx > 0 then
+            -- if true
+        end
+    end
+end
+
 function player:draw()
     --body and mouth
-    setColor(12)
+    set_color(12)
     lovr.graphics.cube('fill',self.x,self.y+.45+.05*math.sin(self.walktimer*12*math.pi),self.z,.5,self.angle,0,1,0)
-    setColor(0)
+    set_color(0)
     lovr.graphics.box('fill',self.x+.25*math.cos(self.angle),
                     self.y+.45+.05*math.sin(self.walktimer*12*math.pi), 
                     self.z-.25*math.sin(self.angle),
                     .05,.25,.35,self.angle,0,1,0)
     --legs
-    setColor(7)
+    set_color(7)
     lovr.graphics.cube('fill',self.x+.1*math.sin(self.angle) + .3*math.sin(self.walktimer*6*math.pi)*math.cos(self.angle),
                 self.y+.05 + .1*math.abs(math.sin(self.walktimer*6*math.pi)),
                 self.z+.1*math.cos(self.angle) -.3*math.sin(self.walktimer*6*math.pi)*math.sin(self.angle),
@@ -143,14 +153,24 @@ function block:init()
     self.dz = math.abs(self.z0-self.z1)
 end
 
+function make_new_block(x0,y0,z0,x1,y1,z1,c)
+    c = c or 3
+    local b = block:new{
+        x0=x0,
+        y0=y0,
+        z0=z0,
+        x1=x1,
+        y1=y1,
+        z1=z1,
+        color=c
+    }
+    return b
+end
+
 function level_init()
-    ground=block:new{
-        x0=-10,
-        y0=0,
-        z0=-10,
-        x1=10,
-        y1=1,
-        z1=10,
+    ground = make_new_block(-10,0,-10,10,1,10,3)
+    level_blocks = {
+        ground
     }
 end
 
@@ -158,8 +178,10 @@ function level_update()
 end
 
 function level_draw()
-    setColor(ground.color)
-    lovr.graphics.box('fill',ground.xmid,ground.ymid,ground.zmid,ground.dx,ground.dy,ground.dz,0,0,1,0)
+    for i,b in pairs(level_blocks) do
+        set_color(b.color)
+        lovr.graphics.box('fill',b.xmid,b.ymid,b.zmid,b.dx,b.dy,b.dz,0,0,1,0)
+    end
 end
 
 -->8 Camera
