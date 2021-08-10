@@ -55,7 +55,7 @@ function player_init()
     p1={}
     p1.x=0
     p1.y=1
-    p1.z=-1
+    p1.z=9
     p1.angle=0
     p1.dx,p1.dy,p1.dz=0,0,0
     p1.wakltimer=0
