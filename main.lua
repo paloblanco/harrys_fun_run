@@ -94,16 +94,30 @@ function player_update(dt)
 end
 
 function player_draw()
+    --body and mouth
     setColor(12)
-    lovr.graphics.cube('fill',p1.x,p1.y+.45+.05*math.sin(p1.walktimer*8*math.pi),p1.z,.5,p1.angle,0,1,0)
+    lovr.graphics.cube('fill',p1.x,p1.y+.45+.05*math.sin(p1.walktimer*12*math.pi),p1.z,.5,p1.angle,0,1,0)
     setColor(0)
     lovr.graphics.box('fill',p1.x+.25*math.cos(p1.angle),
-                    p1.y+.45+.05*math.sin(p1.walktimer*8*math.pi), 
+                    p1.y+.45+.05*math.sin(p1.walktimer*12*math.pi), 
                     p1.z-.25*math.sin(p1.angle),
                     .05,.25,.35,p1.angle,0,1,0)
+    --legs
     setColor(7)
-    lovr.graphics.cube('fill',p1.x+.1*math.sin(p1.angle),p1.y+.05,
-                p1.z+.1*math.cos(p1.angle),.1,p1.angle,0,1,0)
+    lovr.graphics.cube('fill',p1.x+.1*math.sin(p1.angle) + .3*math.sin(p1.walktimer*6*math.pi)*math.cos(p1.angle),
+                p1.y+.05 + .1*math.abs(math.sin(p1.walktimer*6*math.pi)),
+                p1.z+.1*math.cos(p1.angle) -.3*math.sin(p1.walktimer*6*math.pi)*math.sin(p1.angle),
+                .1,p1.angle,0,1,0)
+    lovr.graphics.cube('fill',p1.x-.1*math.sin(p1.angle) + .3*math.sin(-p1.walktimer*6*math.pi)*math.cos(p1.angle),
+                p1.y+.05+ .1*math.abs(math.sin(p1.walktimer*6*math.pi)),
+                p1.z-.1*math.cos(p1.angle) -.3*math.sin(-p1.walktimer*6*math.pi)*math.sin(p1.angle),
+                .1,p1.angle,0,1,0)
+    
+    --arms
+    lovr.graphics.cube('fill',p1.x+.3*math.sin(p1.angle),p1.y+.45+.05*math.sin(p1.walktimer*12*math.pi),
+                p1.z+.3*math.cos(p1.angle),.1,p1.angle,0,1,0)
+    lovr.graphics.cube('fill',p1.x-.3*math.sin(p1.angle),p1.y+.45+.05*math.sin(p1.walktimer*12*math.pi),
+                p1.z-.3*math.cos(p1.angle),.1,p1.angle,0,1,0)
 end
 
 -->8 Level
