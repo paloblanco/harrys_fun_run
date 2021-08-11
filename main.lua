@@ -120,7 +120,7 @@ function player:update(dt,blocks)
     end
 
     if (zkey and self.grounded) then
-        self.dy = 6*dt
+        self.dy = 7*dt
         self.grounded = false
     end
 
@@ -138,7 +138,65 @@ function player:update(dt,blocks)
 end
 
 function player:collide_with_blocks(blocktable)
-    -- for i,b in pairs(self.onblocks) do
+    self.onblocks = {}
+    for i,b in pairs(blocktable) do
+        if self.dx <= 0 then
+            if (self.x - self.size*.5 -self.dx >= b.x1) and
+            (self.x - self.size*.5 < b.x1) and
+            (self.z + self.size*.5 > b.z0) and 
+            (self.z - self.size*.5 < b.z1) then
+                if (self.y < b.y1) and
+                (self.y+self.size > b.y0) then
+                    -- bump to the right
+                    self.x = b.x1+self.size*0.5
+                    self.dx=0
+                end
+            end
+        end
+        if self.dx >= 0 then
+            if (self.x + self.size*.51 > b.x0) and -- this seems to be a 1 sided math quirk.
+            (self.x + (self.size*.5) - self.dx <= b.x0) and
+            (self.z + self.size*.5 > b.z0) and
+            (self.z - self.size*.5 < b.z1) then
+                if (self.y < b.y1) and
+                (self.y+self.size > b.y0) then
+                    -- bump to the left
+                    self.x = b.x0-self.size*0.51
+                    self.dx=0
+                end
+            end
+        end
+        if self.dz >= 0 then
+            if (self.x + self.size*.5 > b.x0) and
+            (self.x - self.size*.5 < b.x1) and
+            (self.z + self.size*.5 > b.z0) and
+            (self.z + self.size*.5 - self.dz <= b.z0) then
+                if (self.y < b.y1) and
+                (self.y+self.size > b.y0) then
+                    -- bump up
+                    self.z = b.z0-self.size*0.5
+                    self.dz=0
+                end
+            end
+        end
+        if self.dz <= 0 then
+            if (self.x + self.size*.5 > b.x0) and
+            (self.x - self.size*.5 < b.x1) and
+            (self.z - self.size*.5 - self.dz >= b.z1) and
+            (self.z - self.size*.5 < b.z1) then
+                if (self.y < b.y1) and
+                (self.y+self.size > b.y0) then
+                    -- bump down
+                    self.z = b.z1+self.size*0.5
+                    self.dz=0
+                end
+            end
+        end
+        if ((self.x + self.size*0.5 > b.x0) and (self.x - self.size*0.5 < b.x1) and
+        (self.z + self.size*0.5>b.z0) and (self.z - self.size*0.5 < b.z1)) then
+            add(self.onblocks,b)
+        end
+    end
     for i,b in pairs(self.onblocks) do
         if (self.x + self.size*.5 > b.x0) and
             (self.x - self.size*.5 < b.x1) and
@@ -152,75 +210,6 @@ function player:collide_with_blocks(blocktable)
                     self.dy=0
                 end
             end
-        else
-            --remove?
-        end
-    end
-    self.onblocks = {}
-    for i,b in pairs(blocktable) do
-        if self.dx > 0 then
-            if (self.x + self.size*.5 > b.x0) and
-            (self.x + self.size*.5 - self.dx <= b.x0) and
-            (self.z + self.size*.5 > b.z0) and
-            (self.z - self.size*.5 < b.z1) then
-                if (self.y < b.y1) and
-                (self.y+self.size > b.y0) then
-                    -- bump to the left
-                    self.x = b.x0-self.size*0.5
-                    self.dx=0
-                else
-                    add(self.onblocks,b)
-                end
-            end
-        end
-        if self.dx < 0 then
-            if (self.x - self.size*.5 -self.dx >= b.x1) and
-            (self.x - self.size*.5 < b.x1) and
-            (self.z + self.size*.5 > b.z0) and
-            (self.z - self.size*.5 < b.z1) then
-                if (self.y < b.y1) and
-                (self.y+self.size > b.y0) then
-                    -- bump to the right
-                    self.x = b.x1+self.size*0.5
-                    self.dx=0
-                else
-                    add(self.onblocks,b)
-                end
-            end
-        end
-        if self.dz > 0 then
-            if (self.x + self.size*.5 > b.x0) and
-            (self.x - self.size*.5 < b.x1) and
-            (self.z + self.size*.5 > b.z0) and
-            (self.z + self.size*.5 - self.dz <= b.z0) then
-                if (self.y < b.y1) and
-                (self.y+self.size > b.y0) then
-                    -- bump up
-                    self.z = b.z0-self.size*0.5
-                    self.dz=0
-                else
-                    add(self.onblocks,b)
-                end
-            end
-        end
-        if self.dz < 0 then
-            if (self.x + self.size*.5 > b.x0) and
-            (self.x - self.size*.5 < b.x1) and
-            (self.z - self.size*.5 - self.dz >= b.z1) and
-            (self.z - self.size*.5 < b.z1) then
-                if (self.y < b.y1) and
-                (self.y+self.size > b.y0) then
-                    -- bump down
-                    self.z = b.z1+self.size*0.5
-                    self.dz=0
-                else
-                    add(self.onblocks,b)
-                end
-            end
-        end
-        if (self.x > b.x0) and (self.x < b.x1) and
-        (self.z>b.z0) and (self.z < b.z1) then
-            add(self.onblocks,b)
         end
     end
 end
@@ -295,7 +284,10 @@ function level_init()
     b1 = make_new_block(0,1,3,3,2,5,6)
     level_blocks = {
         ground,
-        b1
+        make_new_block(0,1,3,3,2,5,6),
+        make_new_block(0,1,3,3,3,4,6),
+        make_new_block(0,2,4,3,4,3,6),
+        make_new_block(-4,3,5,3,5,2,6),
     }
 end
 
