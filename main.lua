@@ -53,7 +53,10 @@ actor = thing:new{
     angle=0,
     x=0,
     y=0,
-    z=0
+    z=0,
+    xold=0,
+    yold=0,
+    zold=0,
 }
 
 function actor:draw_shadow()
@@ -89,6 +92,9 @@ player = actor:new{
     x=0,
     y=1.5,
     z=9,
+    xold=0,
+    yold=1.5,
+    zold=9,
     angle=0,
     dx=0,
     dy=0,
@@ -231,6 +237,7 @@ function player:draw()
     --set transforms
     lovr.graphics.translate(self.x,self.y,self.z)
     lovr.graphics.rotate(self.angle,0,1,0)
+    
     --body and mouth
     set_color(12)
     lovr.graphics.cube('fill',0,0.45+.05*math.sin(self.walktimer*12*math.pi),0,.5,0,0,1,0)
@@ -243,18 +250,18 @@ function player:draw()
     set_color(7)
     lovr.graphics.cube('fill',0.1*0 + .3*math.sin(self.walktimer*6*math.pi)*1,
                 0.05 + .1*math.abs(math.sin(self.walktimer*6*math.pi)),
-                0.1*1 -.3*math.sin(self.walktimer*6*math.pi)*0,
+                0.1*1,
                 .1,0,0,1,0)
     lovr.graphics.cube('fill',0-.1*0 + .3*math.sin(-self.walktimer*6*math.pi)*1,
                 0+.05+ .1*math.abs(math.sin(self.walktimer*6*math.pi)),
-                0-.1*1 -.3*math.sin(-self.walktimer*6*math.pi)*0,
+                0-.1*1,
                 .1,0,0,1,0)
     
     --arms
     lovr.graphics.cube('fill',0+.3*0,0+.45+.05*math.sin(self.walktimer*12*math.pi),
-                0+.3*1,.1,0,0,1,0)
+                0+.3,.1,0,0,1,0)
     lovr.graphics.cube('fill',0-.3*0,0+.45+.05*math.sin(self.walktimer*12*math.pi),
-                0-.3*1,.1,0,0,1,0)
+                0-.3,.1,0,0,1,0)
 
     --shadow
     -- lovr.graphics.pop()
