@@ -12,14 +12,14 @@ color_table = {
     0x5f574f,-- 5 dark-gray
     0xc2c3c7,-- 6 light-gray
     0xfff1e8,-- 7 white
-    0xff004d,-- (255, 0, 77) red
-    0xffa300,-- (255, 163, 0) orange
-    0xffec27,-- (255, 236, 39) yellow
-    0x00e436,-- (0, 228, 54) green
-    0x29adff,-- (41, 173, 255) blue
-    0x83769c,-- (131, 118, 156) indigo
-    0xff77a8,-- (255, 119, 168) pink
-    0xffccaa,-- (255, 204, 170) peach
+    0xff004d,-- 8 red
+    0xffa300,-- 9 orange
+    0xffec27,-- 10 yellow
+    0x00e436,-- 11 green
+    0x29adff,-- 12 blue
+    0x83769c,-- 13 indigo
+    0xff77a8,-- 14 pink
+    0xffccaa,-- 15 peach
 }
 function set_color(ix)
     -- sets color, pico8 style
@@ -122,7 +122,7 @@ function player:update(dt,blocks)
 
     if (upkey or downkey or rightkey or leftkey) then
         self.walktimer = (self.walktimer + dt)%1
-        self.angle = math.atan2(-self.dz/dt,self.dx/dt)
+        self.angle = math.atan2(-self.dz,self.dx)
     else
         self.walktimer = 0
     end
@@ -158,12 +158,13 @@ function player:collide_with_blocks(blocktable)
                     -- bump to the right
                     self.x = b.x1+self.size*0.5
                     self.dx=0
+                    goto continue
                 end
             end
         end
         if self.dx >= 0 then
-            if (self.x + self.size*.505 > b.x0) and -- this seems to be a 1 sided math quirk.
-            (self.x + (self.size*.5) - self.dx <= b.x0) and
+            if (self.x + (self.size*.5) - self.dx <= b.x0) and
+            (self.x + self.size*.505 >= b.x0) and -- this seems to be a 1 sided math quirk.
             (self.z + self.size*.5 > b.z0) and
             (self.z - self.size*.5 < b.z1) then
                 if (self.y < b.y1) and
@@ -171,6 +172,7 @@ function player:collide_with_blocks(blocktable)
                     -- bump to the left
                     self.x = b.x0-self.size*0.505
                     self.dx=0
+                    goto continue
                 end
             end
         end
@@ -184,6 +186,7 @@ function player:collide_with_blocks(blocktable)
                     -- bump up
                     self.z = b.z0-self.size*0.5
                     self.dz=0
+                    goto continue
                 end
             end
         end
@@ -197,6 +200,7 @@ function player:collide_with_blocks(blocktable)
                     -- bump down
                     self.z = b.z1+self.size*0.5
                     self.dz=0
+                    goto continue
                 end
             end
         end
@@ -204,6 +208,7 @@ function player:collide_with_blocks(blocktable)
         (self.z + self.size*0.5>b.z0) and (self.z - self.size*0.5 < b.z1)) then
             add(self.onblocks,b)
         end
+        ::continue::
     end
     for i,b in pairs(self.onblocks) do
         if (self.x + self.size*.5 > b.x0) and
