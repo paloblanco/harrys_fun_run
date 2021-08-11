@@ -57,6 +57,7 @@ actor = thing:new{
     xold=0,
     yold=0,
     zold=0,
+    killme=false
 }
 
 function actor:draw_shadow()
@@ -108,6 +109,10 @@ player = actor:new{
 function player:update(dt,blocks)
     self.dx=0
     self.dz=0
+    self.xold=self.x
+    self.yold=self.y
+    self.zold=self.z
+
 
     if upkey then
         self.dz = -2*dt
@@ -155,7 +160,7 @@ function player:collide_with_blocks(blocktable)
     self.onblocks = {}
     for i,b in pairs(blocktable) do
         if self.dx <= 0 then
-            if (self.x - self.size*.5 -self.dx >= b.x1) and
+            if (self.xold - self.size*.5 >= b.x1) and
             (self.x - self.size*.5 < b.x1) and
             (self.z + self.size*.5 > b.z0) and 
             (self.z - self.size*.5 < b.z1) then
@@ -169,14 +174,14 @@ function player:collide_with_blocks(blocktable)
             end
         end
         if self.dx >= 0 then
-            if (self.x + (self.size*.5) - self.dx <= b.x0) and
-            (self.x + self.size*.505 >= b.x0) and -- this seems to be a 1 sided math quirk.
+            if (self.xold + (self.size*.5) <= b.x0) and
+            (self.x + self.size*.5 >= b.x0) and -- this seems to be a 1 sided math quirk.
             (self.z + self.size*.5 > b.z0) and
             (self.z - self.size*.5 < b.z1) then
                 if (self.y < b.y1) and
                 (self.y+self.size > b.y0) then
                     -- bump to the left
-                    self.x = b.x0-self.size*0.505
+                    self.x = b.x0-self.size*0.5
                     self.dx=0
                     goto continue
                 end
@@ -186,7 +191,7 @@ function player:collide_with_blocks(blocktable)
             if (self.x + self.size*.5 > b.x0) and
             (self.x - self.size*.5 < b.x1) and
             (self.z + self.size*.5 > b.z0) and
-            (self.z + self.size*.5 - self.dz <= b.z0) then
+            (self.zold + self.size*.5 <= b.z0) then
                 if (self.y < b.y1) and
                 (self.y+self.size > b.y0) then
                     -- bump up
@@ -199,7 +204,7 @@ function player:collide_with_blocks(blocktable)
         if self.dz <= 0 then
             if (self.x + self.size*.5 > b.x0) and
             (self.x - self.size*.5 < b.x1) and
-            (self.z - self.size*.5 - self.dz >= b.z1) and
+            (self.zold - self.size*.5 >= b.z1) and
             (self.z - self.size*.5 < b.z1) then
                 if (self.y < b.y1) and
                 (self.y+self.size > b.y0) then
@@ -226,6 +231,12 @@ function player:collide_with_blocks(blocktable)
                 (self.y+self.size > b.y0) then
                     self.grounded=true
                     self.y = b.y1
+                    self.dy=0
+                end
+            elseif self.dy > 0 then
+                if (self.y < b.y0) and
+                (self.y+self.size > b.y0) then
+                    self.y = b.y0 - self.size
                     self.dy=0
                 end
             end
