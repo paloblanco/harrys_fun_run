@@ -37,6 +37,25 @@ function draw_cam_info()
     end
 end
 
+-->8 Actor class
+actor = thing:new{
+    shadow = true,
+    onblocks = {},
+    size=0.5,
+    angle=0,
+    x=0,
+    y=0,
+    z=0
+}
+
+function actor:draw_shadow()
+    for _,b in pairs(self.onblocks) do
+        set_color(0)
+        lovr.graphics.box('fill',self.x,b.y1,
+            self.z,self.size,.05,self.size,self.angle,0,1,0)
+    end
+end
+
 -->8 Player
 function input_init()
     function lovr.keypressed(key)
@@ -58,7 +77,7 @@ end
 function input_update()
 end
 
-player = thing:new{
+player = actor:new{
     x=0,
     y=1.5,
     z=9,
@@ -101,7 +120,7 @@ function player:update(dt,blocks)
     end
 
     if (zkey and self.grounded) then
-        self.dy = 2*dt
+        self.dy = 6*dt
         self.grounded = false
     end
 
@@ -111,7 +130,7 @@ function player:update(dt,blocks)
     self.x = self.x + self.dx
     
     self.grounded=false
-    self.dy = self.dy - .01*dt
+    self.dy = self.dy - .3*dt
     self.y = self.y + self.dy
 
     --collide!
@@ -120,7 +139,7 @@ end
 
 function player:collide_with_blocks(blocktable)
     -- for i,b in pairs(self.onblocks) do
-    for i,b in pairs(blocktable) do
+    for i,b in pairs(self.onblocks) do
         if (self.x + self.size*.5 > b.x0) and
             (self.x - self.size*.5 < b.x1) and
             (self.z + self.size*.5 > b.z0) and
@@ -141,7 +160,7 @@ function player:collide_with_blocks(blocktable)
     for i,b in pairs(blocktable) do
         if self.dx > 0 then
             if (self.x + self.size*.5 > b.x0) and
-            (self.x + self.size*.5 < b.x1) and
+            (self.x + self.size*.5 - self.dx <= b.x0) and
             (self.z + self.size*.5 > b.z0) and
             (self.z - self.size*.5 < b.z1) then
                 if (self.y < b.y1) and
@@ -153,8 +172,9 @@ function player:collide_with_blocks(blocktable)
                     add(self.onblocks,b)
                 end
             end
-        elseif self.dx < 0 then
-            if (self.x - self.size*.5 > b.x0) and
+        end
+        if self.dx < 0 then
+            if (self.x - self.size*.5 -self.dx >= b.x1) and
             (self.x - self.size*.5 < b.x1) and
             (self.z + self.size*.5 > b.z0) and
             (self.z - self.size*.5 < b.z1) then
@@ -172,7 +192,7 @@ function player:collide_with_blocks(blocktable)
             if (self.x + self.size*.5 > b.x0) and
             (self.x - self.size*.5 < b.x1) and
             (self.z + self.size*.5 > b.z0) and
-            (self.z + self.size*.5 < b.z1) then
+            (self.z + self.size*.5 - self.dz <= b.z0) then
                 if (self.y < b.y1) and
                 (self.y+self.size > b.y0) then
                     -- bump up
@@ -182,20 +202,25 @@ function player:collide_with_blocks(blocktable)
                     add(self.onblocks,b)
                 end
             end
-        elseif self.dz < 0 then
+        end
+        if self.dz < 0 then
             if (self.x + self.size*.5 > b.x0) and
             (self.x - self.size*.5 < b.x1) and
-            (self.z - self.size*.5 > b.z0) and
+            (self.z - self.size*.5 - self.dz >= b.z1) and
             (self.z - self.size*.5 < b.z1) then
                 if (self.y < b.y1) and
                 (self.y+self.size > b.y0) then
                     -- bump down
-                    self.x = b.z1+self.size*0.5
+                    self.z = b.z1+self.size*0.5
                     self.dz=0
                 else
                     add(self.onblocks,b)
                 end
             end
+        end
+        if (self.x > b.x0) and (self.x < b.x1) and
+        (self.z>b.z0) and (self.z < b.z1) then
+            add(self.onblocks,b)
         end
     end
 end
@@ -225,6 +250,9 @@ function player:draw()
                 self.z+.3*math.cos(self.angle),.1,self.angle,0,1,0)
     lovr.graphics.cube('fill',self.x-.3*math.sin(self.angle),self.y+.45+.05*math.sin(self.walktimer*12*math.pi),
                 self.z-.3*math.cos(self.angle),.1,self.angle,0,1,0)
+
+    --shadow
+    self:draw_shadow()
 end
 
 -->8 Level
@@ -264,8 +292,10 @@ end
 
 function level_init()
     ground = make_new_block(-10,0,-10,10,1,10,3)
+    b1 = make_new_block(0,1,3,3,2,5,6)
     level_blocks = {
-        ground
+        ground,
+        b1
     }
 end
 
