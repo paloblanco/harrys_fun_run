@@ -4,14 +4,14 @@ thing = require 'thing'
 
 -->8 Convenience functions
 color_table = {
-    0x000000,-- (0, 0, 0) black
-    0x1d2b53,-- (29, 43, 83) dark-blue
-    0x7e2553,-- (126, 37, 83) dark-purple
-    0x008751,-- (0, 135, 81) dark-green
-    0xab5236,-- (171, 82, 54) brown
-    0x5f574f,-- (95, 87, 79) dark-gray
-    0xc2c3c7,-- (194, 195, 199) light-gray
-    0xfff1e8,-- (255, 241, 232) white
+    0x000000,-- 0 black
+    0x1d2b53,-- 1 dark-blue
+    0x7e2553,-- 2 dark-purple
+    0x008751,-- 3 dark-green
+    0xab5236,-- 4 brown
+    0x5f574f,-- 5 dark-gray
+    0xc2c3c7,-- 6 light-gray
+    0xfff1e8,-- 7 white
     0xff004d,-- (255, 0, 77) red
     0xffa300,-- (255, 163, 0) orange
     0xffec27,-- (255, 236, 39) yellow
@@ -35,6 +35,14 @@ function draw_cam_info()
     for ix,val in pairs({lovr.graphics.getViewPose(1)}) do
         lovr.graphics.print(val,0,1.7-.5*ix,-3,.5)    
     end
+end
+
+print_lines=0
+function print_gui(text)
+    set_color(7)
+    lovr.graphics.setFont()
+    lovr.graphics.print(text,p1.x,p1.y+1+print_lines,p1.z,.25)
+    print_lines = print_lines + .5
 end
 
 -->8 Actor class
@@ -154,14 +162,14 @@ function player:collide_with_blocks(blocktable)
             end
         end
         if self.dx >= 0 then
-            if (self.x + self.size*.51 > b.x0) and -- this seems to be a 1 sided math quirk.
+            if (self.x + self.size*.505 > b.x0) and -- this seems to be a 1 sided math quirk.
             (self.x + (self.size*.5) - self.dx <= b.x0) and
             (self.z + self.size*.5 > b.z0) and
             (self.z - self.size*.5 < b.z1) then
                 if (self.y < b.y1) and
                 (self.y+self.size > b.y0) then
                     -- bump to the left
-                    self.x = b.x0-self.size*0.51
+                    self.x = b.x0-self.size*0.505
                     self.dx=0
                 end
             end
@@ -286,8 +294,8 @@ function level_init()
         ground,
         make_new_block(0,1,3,3,2,5,6),
         make_new_block(0,1,3,3,3,4,6),
-        make_new_block(0,2,4,3,4,3,6),
-        make_new_block(-4,3,5,3,5,2,6),
+        make_new_block(0,2,2,3,4,3,6),
+        make_new_block(-4,3,1,3,5,2,6),
     }
 end
 
@@ -343,9 +351,15 @@ function lovr.update(dt)
 end
 
 function lovr.draw()
+    lovr.graphics.setShader(shader)
     lovr.graphics.setBackgroundColor(color_table[2])
     -- player_draw()
     p1:draw()
     level_draw()
     cam_draw()
+    
+    -- debug stuff
+    lovr.graphics.setShader()
+    print_lines = 0
+    print_gui("Hero dx: "..p1.dx)
 end
