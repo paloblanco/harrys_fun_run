@@ -39,7 +39,7 @@ shader = lovr.graphics.newShader('standard', {
     flags = {
         normalMap = false,
         indirectLighting = true,
-        occlusion = false,
+        occlusion = true,
         emissive = true,
         skipTonemap = false
     }

@@ -228,32 +228,37 @@ function player:collide_with_blocks(blocktable)
 end
 
 function player:draw()
+    --set transforms
+    lovr.graphics.translate(self.x,self.y,self.z)
+    lovr.graphics.rotate(self.angle,0,1,0)
     --body and mouth
     set_color(12)
-    lovr.graphics.cube('fill',self.x,self.y+.45+.05*math.sin(self.walktimer*12*math.pi),self.z,.5,self.angle,0,1,0)
+    lovr.graphics.cube('fill',0,0.45+.05*math.sin(self.walktimer*12*math.pi),0,.5,0,0,1,0)
     set_color(0)
-    lovr.graphics.box('fill',self.x+.25*math.cos(self.angle),
-                    self.y+.45+.05*math.sin(self.walktimer*12*math.pi), 
-                    self.z-.25*math.sin(self.angle),
-                    .05,.25,.35,self.angle,0,1,0)
+    lovr.graphics.box('fill',0.25*1,
+                    0.45+.05*math.sin(self.walktimer*12*math.pi), 
+                    0-.25*0,
+                    .05,.25,.35,0,0,1,0)
     --legs
     set_color(7)
-    lovr.graphics.cube('fill',self.x+.1*math.sin(self.angle) + .3*math.sin(self.walktimer*6*math.pi)*math.cos(self.angle),
-                self.y+.05 + .1*math.abs(math.sin(self.walktimer*6*math.pi)),
-                self.z+.1*math.cos(self.angle) -.3*math.sin(self.walktimer*6*math.pi)*math.sin(self.angle),
-                .1,self.angle,0,1,0)
-    lovr.graphics.cube('fill',self.x-.1*math.sin(self.angle) + .3*math.sin(-self.walktimer*6*math.pi)*math.cos(self.angle),
-                self.y+.05+ .1*math.abs(math.sin(self.walktimer*6*math.pi)),
-                self.z-.1*math.cos(self.angle) -.3*math.sin(-self.walktimer*6*math.pi)*math.sin(self.angle),
-                .1,self.angle,0,1,0)
+    lovr.graphics.cube('fill',0.1*0 + .3*math.sin(self.walktimer*6*math.pi)*1,
+                0.05 + .1*math.abs(math.sin(self.walktimer*6*math.pi)),
+                0.1*1 -.3*math.sin(self.walktimer*6*math.pi)*0,
+                .1,0,0,1,0)
+    lovr.graphics.cube('fill',0-.1*0 + .3*math.sin(-self.walktimer*6*math.pi)*1,
+                0+.05+ .1*math.abs(math.sin(self.walktimer*6*math.pi)),
+                0-.1*1 -.3*math.sin(-self.walktimer*6*math.pi)*0,
+                .1,0,0,1,0)
     
     --arms
-    lovr.graphics.cube('fill',self.x+.3*math.sin(self.angle),self.y+.45+.05*math.sin(self.walktimer*12*math.pi),
-                self.z+.3*math.cos(self.angle),.1,self.angle,0,1,0)
-    lovr.graphics.cube('fill',self.x-.3*math.sin(self.angle),self.y+.45+.05*math.sin(self.walktimer*12*math.pi),
-                self.z-.3*math.cos(self.angle),.1,self.angle,0,1,0)
+    lovr.graphics.cube('fill',0+.3*0,0+.45+.05*math.sin(self.walktimer*12*math.pi),
+                0+.3*1,.1,0,0,1,0)
+    lovr.graphics.cube('fill',0-.3*0,0+.45+.05*math.sin(self.walktimer*12*math.pi),
+                0-.3*1,.1,0,0,1,0)
 
     --shadow
+    -- lovr.graphics.pop()
+    lovr.graphics.origin()
     self:draw_shadow()
 end
 
