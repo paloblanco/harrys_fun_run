@@ -57,7 +57,11 @@ actor = thing:new{
     xold=0,
     yold=0,
     zold=0,
-    killme=false
+    dx=0,
+    dy=0,
+    dz=0,
+    killme=false,
+    walktimer=0
 }
 
 function actor:draw_shadow()
@@ -72,6 +76,9 @@ function actor:update()
 end
 
 function actor:draw()
+end
+
+function actor:bump_me(other)
 end
 
 function actor:collide_with_blocks(blocktable)
@@ -262,8 +269,30 @@ function player:draw()
     set_color(0)
     lovr.graphics.box('fill',0.25*1,
                     0.45+.05*math.sin(self.walktimer*12*math.pi), 
-                    0-.25*0,
+                    0,
                     .05,.25,.35,0,0,1,0)
+    -- teeth
+    set_color(7)
+    lovr.graphics.cube('fill',0.25,
+                0.45+0.125-.025+.05*math.sin(self.walktimer*12*math.pi), 
+                0.1,
+                0.05,0,0,1,0)
+    lovr.graphics.cube('fill',0.25,
+                0.45+0.125-.025+.05*math.sin(self.walktimer*12*math.pi), 
+                -0.12,
+                0.05,0,0,1,0)
+    lovr.graphics.cube('fill',0.25,
+                0.45+0.125-.025+.05*math.sin(self.walktimer*12*math.pi), 
+                0.0,
+                0.05,0,0,1,0)
+    lovr.graphics.cube('fill',0.25,
+                0.45-0.1-.0+.05*math.sin(self.walktimer*12*math.pi), 
+                0.05,
+                0.05,0,0,1,0)
+    lovr.graphics.cube('fill',0.25,
+                0.45-0.1-.0+.05*math.sin(self.walktimer*12*math.pi), 
+                -0.1,
+                0.05,0,0,1,0)
     --legs
     set_color(7)
     lovr.graphics.cube('fill',0.1*0 + .3*math.sin(self.walktimer*6*math.pi)*1,
@@ -285,6 +314,33 @@ function player:draw()
     -- lovr.graphics.pop()
     lovr.graphics.origin()
     self:draw_shadow()
+end
+
+--> objects
+coin = actor:new()
+
+function coin:init()
+    self:collide_with_blocks(level_blocks)
+end
+
+function coin:bump_me()
+    self.killme=true
+    coincount = coincount+1
+end
+
+function coin:draw()
+    set_color(9)
+    lovr.graphics.translate(self.x,self.y,self.z)
+    lovr.graphics.rotate(math.pi/2,0,0,1)
+    lovr.graphics.cylinder(0,0,0,0.05,2*math.pi*worldtime,1,0,0,.25,.25)
+    lovr.graphics.origin()
+    self:draw_shadow()
+end
+
+coin_list = {}
+
+function make_coin(x,y,z)
+    add(coin_list,coin:new{x=x,y=y,z=z})
 end
 
 -->8 Level
@@ -374,15 +430,27 @@ function lovr.load()
     p1 = player:new()
     level_init()
     cam_init(p1)
+
+    make_coin(5,2,8)
     lovr.graphics.setShader(shader)
+    
+    worldtime = 0
+    coincount=0
 end
 
 function lovr.update(dt)
     input_update()
     -- player_update(dt)
     p1:update(dt, level_blocks)
+
+    for _,c in pairs(coin_list) do
+        c:update()
+    end
+
     level_update(dt)
     cam_update(dt)
+
+    worldtime = worldtime + dt
 end
 
 function lovr.draw()
@@ -390,6 +458,10 @@ function lovr.draw()
     lovr.graphics.setBackgroundColor(color_table[2])
     -- player_draw()
     p1:draw()
+    for _,c in pairs(coin_list) do
+        c:draw()
+    end
+
     level_draw()
     cam_draw()
     
