@@ -68,95 +68,13 @@ function actor:draw_shadow()
     end
 end
 
--->8 Player
-function input_init()
-    function lovr.keypressed(key)
-        if key=='right' then rightkey = true end
-        if key=='left' then leftkey = true end
-        if key=='up' then upkey = true end
-        if key=='down' then downkey = true end
-        if key=='z' then zkey = true end
-    end
-    function lovr.keyreleased(key)
-        if key=='right' then rightkey = false end
-        if key=='left' then leftkey = false end
-        if key=='up' then upkey = false end
-        if key=='down' then downkey = false end
-        if key=='z' then zkey = false end
-    end
+function actor:update()
 end
 
-function input_update()
+function actor:draw()
 end
 
-player = actor:new{
-    x=0,
-    y=1.5,
-    z=9,
-    xold=0,
-    yold=1.5,
-    zold=9,
-    angle=0,
-    dx=0,
-    dy=0,
-    dz=0,
-    size=.5,
-    wakltimer=0,
-    grounded=false,
-    onblocks={} -- table of all the blocks that your y axis is on top of
-}
-
-function player:update(dt,blocks)
-    self.dx=0
-    self.dz=0
-    self.xold=self.x
-    self.yold=self.y
-    self.zold=self.z
-
-
-    if upkey then
-        self.dz = -2*dt
-    elseif downkey then
-        self.dz = 2*dt
-    end
-
-    if rightkey then
-        self.dx = 2*dt
-    elseif leftkey then
-        self.dx = -2*dt
-    end
-
-    if ((self.dx ~= 0) and (self.dz ~= 0)) then
-        self.dx = self.dx * 0.707
-        self.dz = self.dz * 0.707
-    end
-
-    if (upkey or downkey or rightkey or leftkey) then
-        self.walktimer = (self.walktimer + dt)%1
-        self.angle = math.atan2(-self.dz,self.dx)
-    else
-        self.walktimer = 0
-    end
-
-    if (zkey and self.grounded) then
-        self.dy = 7*dt
-        self.grounded = false
-    end
-
-
-    -- move!
-    self.z = self.z + self.dz
-    self.x = self.x + self.dx
-    
-    self.grounded=false
-    self.dy = self.dy - .3*dt
-    self.y = self.y + self.dy
-
-    --collide!
-    self:collide_with_blocks(blocks)
-end
-
-function player:collide_with_blocks(blocktable)
+function actor:collide_with_blocks(blocktable)
     self.onblocks = {}
     for i,b in pairs(blocktable) do
         if self.dx <= 0 then
@@ -175,7 +93,7 @@ function player:collide_with_blocks(blocktable)
         end
         if self.dx >= 0 then
             if (self.xold + (self.size*.5) <= b.x0) and
-            (self.x + self.size*.5 >= b.x0) and -- this seems to be a 1 sided math quirk.
+            (self.x + self.size*.5 >= b.x0) and
             (self.z + self.size*.5 > b.z0) and
             (self.z - self.size*.5 < b.z1) then
                 if (self.y < b.y1) and
@@ -243,6 +161,95 @@ function player:collide_with_blocks(blocktable)
         end
     end
 end
+
+
+-->8 Player
+function input_init()
+    function lovr.keypressed(key)
+        if key=='right' then rightkey = true end
+        if key=='left' then leftkey = true end
+        if key=='up' then upkey = true end
+        if key=='down' then downkey = true end
+        if key=='z' then zkey = true end
+    end
+    function lovr.keyreleased(key)
+        if key=='right' then rightkey = false end
+        if key=='left' then leftkey = false end
+        if key=='up' then upkey = false end
+        if key=='down' then downkey = false end
+        if key=='z' then zkey = false end
+    end
+end
+
+function input_update()
+end
+
+player = actor:new{
+    x=0,
+    y=1.5,
+    z=9,
+    xold=0,
+    yold=1.5,
+    zold=9,
+    angle=0,
+    dx=0,
+    dy=0,
+    dz=0,
+    size=.5,
+    wakltimer=0,
+    grounded=false,
+    onblocks={} -- table of all the blocks that your y axis is on top of
+}
+
+function player:update(dt,blocks)
+    self.dx=0
+    self.dz=0
+    self.xold=self.x
+    self.yold=self.y
+    self.zold=self.z
+
+    if upkey then
+        self.dz = -2*dt
+    elseif downkey then
+        self.dz = 2*dt
+    end
+
+    if rightkey then
+        self.dx = 2*dt
+    elseif leftkey then
+        self.dx = -2*dt
+    end
+
+    if ((self.dx ~= 0) and (self.dz ~= 0)) then
+        self.dx = self.dx * 0.707
+        self.dz = self.dz * 0.707
+    end
+
+    if (upkey or downkey or rightkey or leftkey) then
+        self.walktimer = (self.walktimer + dt)%1
+        self.angle = math.atan2(-self.dz,self.dx)
+    else
+        self.walktimer = 0
+    end
+
+    if (zkey and self.grounded) then
+        self.dy = 7*dt
+        self.grounded = false
+    end
+
+
+    -- move!
+    self.z = self.z + self.dz
+    self.x = self.x + self.dx
+    
+    self.grounded=false
+    self.dy = self.dy - .3*dt
+    self.y = self.y + self.dy
+
+    --collide!
+    self:collide_with_blocks(blocks)
+end
+
 
 function player:draw()
     --set transforms
