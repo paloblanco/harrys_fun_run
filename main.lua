@@ -456,15 +456,7 @@ function cam_update(dt)
     if (camright) then camangle = camangle - 1*dt end
 
     angt1 = angt-camangle
-    -- if angt > 1.5*math.pi then
-    --     angbest = angt1-2*math.pi
-    -- elseif angt1 < -math.pi then
-    --     angbest = 2*math.pi + angt1
-    -- elseif angt1 > math.pi then
-    --     angbest = 2*math.pi - angt1    
-    -- else
-    --     angbest = angt1
-    -- end
+
     if angt1 < math.pi and angt1 >= 0 then 
         angbest = angt1
     elseif angt1 >= math.pi then
@@ -475,8 +467,6 @@ function cam_update(dt)
         angbest = 2*math.pi + angt1
     end
     
-    -- angbest = angt1
-    -- if (math.abs(angt2) < math.abs(angt1)) then angbest = angt2 end
     if (downkey) then angbest = 0 end
 
     if (not camleft and not camright) then camangle = camangle + (angbest)*dt end
