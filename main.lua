@@ -178,6 +178,7 @@ function input_init()
         if key=='up' then upkey = true end
         if key=='down' then downkey = true end
         if key=='z' then zkey = true end
+        if key=='x' then xkey = true end
         if key=='w' then camup = true end
         if key=='a' then camleft = true end
         if key=='s' then camdown = true end
@@ -189,6 +190,7 @@ function input_init()
         if key=='up' then upkey = false end
         if key=='down' then downkey = false end
         if key=='z' then zkey = false end
+        if key=='x' then xkey = false end
         if key=='w' then camup = false end
         if key=='a' then camleft = false end
         if key=='s' then camdown = false end
@@ -245,6 +247,8 @@ function player:update(dt,blocks)
         self.speed = 2*dt
     end
 
+    if xkey then self.speed = self.speed*1.75 end
+
     if (self.speed > 0) then self.angle = math.atan2(-self.dz,self.dx) end
     self.dz = -self.speed*math.sin(self.angle)
     self.dx = self.speed*math.cos(self.angle)
@@ -255,7 +259,10 @@ function player:update(dt,blocks)
     -- end
 
     if (upkey or downkey or rightkey or leftkey) then
-        if self.grounded then self.walktimer = (self.walktimer + dt)%1 end
+        if self.grounded then 
+            self.walktimer = (self.walktimer + dt)%1 
+            if xkey then self.walktimer = (self.walktimer + .5*dt)%1 end
+        end
         self.angle = math.atan2(-self.dz,self.dx) % (math.pi*2)
     else
         self.walktimer = 0
@@ -426,6 +433,47 @@ function level_draw()
     end
 end
 
+function level_chunk_init()
+    -- cut the level into smaller chunks to reduce collision calculations with harry
+    minx=0
+    maxx=0
+    minz=0
+    maxz=0
+    chunkdist=5
+    for _,b in pairs(level_blocks) do
+        minx = math.min(minx,b.x0)
+        minz = math.min(minz,b.z0)
+        maxx = math.max(maxx,b.x1)
+        maxz = math.max(maxz,b.z1)
+    end
+    chunktable={}
+    for xx = minx,maxx+1,chunkdist do
+        local chunkcol={}
+        for zz = minz,maxz+1,chunkdist do
+            xx0=xx-1
+            xx1=xx+chunkdist+1
+            zz0=zz-1
+            zz1=zz+1+chunkdist
+            local chunk={}
+            for _,b in pairs(level_blocks) do
+                if b.x0<xx1 and b.x1>xx0 and b.z0<zz1 and b.z1>zz0 then 
+                    add(chunk,b)
+                end
+            end
+            add(chunkcol,chunk)
+        end
+        add(chunktable,chunkcol)
+    end
+end
+
+function return_blocks_from_chunk(x,z)
+    if x < minx or x > maxx or z < minz or z > maxz then return {} end
+    col = math.floor((x-minx)/chunkdist) + 1
+    row = math.floor((z-minz)/chunkdist) + 1
+    thischunk = chunktable[col][row]
+    return thischunk
+end
+
 -->8 Camera
 function cam_init(target)
     cam_target=target
@@ -490,6 +538,8 @@ function lovr.load()
     cam_init(p1)
 
     make_coin(5,2,8)
+    level_chunk_init()
+
     lovr.graphics.setShader(shader)
     
     worldtime = 0
@@ -499,7 +549,9 @@ end
 function lovr.update(dt)
     input_update()
     -- player_update(dt)
-    p1:update(dt, level_blocks)
+
+    player_chunk = return_blocks_from_chunk(p1.x,p1.z)
+    p1:update(dt, player_chunk)
 
     for _,c in pairs(coin_list) do
         c:update()
@@ -527,6 +579,8 @@ function lovr.draw()
     lovr.graphics.setShader()
     print_lines = 0
     -- print_gui("Hero dx: "..p1.dx)
-    print_gui("P angle: "..math.floor(p1.angle*180/math.pi))
-    print_gui("cam ang: "..math.floor(camangle*180/math.pi))
+    --print_gui("P angle: "..math.floor(p1.angle*180/math.pi))
+    --print_gui("cam ang: "..math.floor(camangle*180/math.pi))
+    print_gui("col: "..col)
+    print_gui("row: "..row)
 end
