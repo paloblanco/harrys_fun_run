@@ -365,7 +365,7 @@ function coin:draw()
     set_color(9)
     lovr.graphics.translate(self.x,self.y,self.z)
     lovr.graphics.rotate(math.pi/2,0,0,1)
-    lovr.graphics.cylinder(0,0,0,0.05,2*math.pi*worldtime,1,0,0,.25,.25)
+    lovr.graphics.cylinder(0,0,0,0.05,2*math.pi*worldtime,1,0,0,.25,.25,true,6)
     lovr.graphics.origin()
     self:draw_shadow()
 end
