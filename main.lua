@@ -178,6 +178,10 @@ function input_init()
         if key=='up' then upkey = true end
         if key=='down' then downkey = true end
         if key=='z' then zkey = true end
+        if key=='w' then camup = true end
+        if key=='a' then camleft = true end
+        if key=='s' then camdown = true end
+        if key=='d' then camright = true end
     end
     function lovr.keyreleased(key)
         if key=='right' then rightkey = false end
@@ -185,6 +189,10 @@ function input_init()
         if key=='up' then upkey = false end
         if key=='down' then downkey = false end
         if key=='z' then zkey = false end
+        if key=='w' then camup = false end
+        if key=='a' then camleft = false end
+        if key=='s' then camdown = false end
+        if key=='d' then camright = false end
     end
 end
 
@@ -233,15 +241,19 @@ function player:update(dt,blocks)
     end
 
     if (upkey or downkey or rightkey or leftkey) then
-        self.walktimer = (self.walktimer + dt)%1
+        if self.grounded then self.walktimer = (self.walktimer + dt)%1 end
         self.angle = math.atan2(-self.dz,self.dx)
     else
         self.walktimer = 0
     end
 
     if (zkey and self.grounded) then
-        self.dy = 7*dt
+        self.dy = 7*(1/60) -- can't use time elapsed here
         self.grounded = false
+    end
+
+    if not self.grounded then
+        self.walktimer = .25
     end
 
 
@@ -273,23 +285,23 @@ function player:draw()
                     .05,.25,.35,0,0,1,0)
     -- teeth
     set_color(7)
-    lovr.graphics.cube('fill',0.25,
+    lovr.graphics.cube('fill',0.27,
                 0.45+0.125-.025+.05*math.sin(self.walktimer*12*math.pi), 
                 0.1,
                 0.05,0,0,1,0)
-    lovr.graphics.cube('fill',0.25,
+    lovr.graphics.cube('fill',0.27,
                 0.45+0.125-.025+.05*math.sin(self.walktimer*12*math.pi), 
                 -0.12,
                 0.05,0,0,1,0)
-    lovr.graphics.cube('fill',0.25,
+    lovr.graphics.cube('fill',0.27,
                 0.45+0.125-.025+.05*math.sin(self.walktimer*12*math.pi), 
                 0.0,
                 0.05,0,0,1,0)
-    lovr.graphics.cube('fill',0.25,
+    lovr.graphics.cube('fill',0.27,
                 0.45-0.1-.0+.05*math.sin(self.walktimer*12*math.pi), 
                 0.05,
                 0.05,0,0,1,0)
-    lovr.graphics.cube('fill',0.25,
+    lovr.graphics.cube('fill',0.27,
                 0.45-0.1-.0+.05*math.sin(self.walktimer*12*math.pi), 
                 -0.1,
                 0.05,0,0,1,0)
@@ -406,17 +418,29 @@ function cam_init(target)
     camx=cam_target.x
     camy=cam_target.y+2
     camz=cam_target.z+3
-    camangle=-math.pi*0.125
+    camdist = 3 -- floor distance from ahrry to cam
+    downangle=-math.pi*0.125
+    camangle=0
+    
     function resetCam()
-        lovr.graphics.setViewPose(1,camx,camy,camz,camangle,1,0,0)
+        camfrom = lovr.math.vec3(camx,camy,camz)
+        camto = lovr.math.vec3(cam_target.x, cam_target.y+1, cam_target.z)
+        camup = lovr.math.vec3(0,1,0)
+
+        cammat = lovr.math.mat4()
+        cammat:lookAt(camfrom,camto,camup)
+        lovr.graphics.setViewPose(1,cammat,true)
+        shader:send('lovrLightDirection', camto - camfrom )
     end
-    resetCam()
+    
 end
 
-function cam_update()
-    camx = camx + (cam_target.x-camx)/5
-    camy = camy + (cam_target.y+2-camy)/5
-    camz = camz + (cam_target.z+3-camz)/5
+function cam_update(dt)
+    if (camleft) then camangle = camangle + 1*dt end
+    if (camright) then camangle = camangle - 1*dt end
+
+    camx = cam_target.x + 3*math.sin(camangle)
+    camz = cam_target.z + 3*math.cos(-camangle)
 
     resetCam()
 end
