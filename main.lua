@@ -30,6 +30,16 @@ function add(t,v)
     table.insert(t,v)
 end
 
+function del(t,v)
+    ix=nil
+    for i,vv in pairs(t) do
+        if v==vv then
+            ix=i
+        end
+    end
+    if ix then table.remove(t,ix) end
+end
+
 function draw_cam_info()
     lovr.graphics.print('Hello World',0,1.7,-3,.25)
     for ix,val in pairs({lovr.graphics.getViewPose(1)}) do
@@ -61,7 +71,8 @@ actor = thing:new{
     dy=0,
     dz=0,
     killme=false,
-    walktimer=0
+    walktimer=0,
+    mychunks={}
 }
 
 function actor:draw_shadow()
@@ -81,10 +92,28 @@ end
 function actor:bump_me(other)
 end
 
+function actor:kill_me()
+    del(actor_list,self)
+    for _,c in pairs(self.mychunks) do
+        del(c,self)
+    end
+end
+
+function actor:bump_others(others)
+    for _,other in pairs(others) do
+        if math.abs(self.x-other.x)<other.size and 
+        math.abs(self.z-other.z)<other.size and 
+        math.abs(self.y-other.y)<other.size
+        then
+            other:bump_me(self)
+        end
+    end
+end
+
 function actor:collide_with_blocks(blocktable)
     self.onblocks = {}
     for i,b in pairs(blocktable) do
-        if self.dx <= 0 then
+        if self.dx < 0 then
             if (self.xold - self.size*.5 >= b.x1) and
             (self.x - self.size*.5 < b.x1) and
             (self.z + self.size*.5 > b.z0) and 
@@ -98,7 +127,7 @@ function actor:collide_with_blocks(blocktable)
                 end
             end
         end
-        if self.dx >= 0 then
+        if self.dx > 0 then
             if (self.xold + (self.size*.5) <= b.x0) and
             (self.x + self.size*.5 >= b.x0) and
             (self.z + self.size*.5 > b.z0) and
@@ -112,7 +141,7 @@ function actor:collide_with_blocks(blocktable)
                 end
             end
         end
-        if self.dz >= 0 then
+        if self.dz > 0 then
             if (self.x + self.size*.5 > b.x0) and
             (self.x - self.size*.5 < b.x1) and
             (self.z + self.size*.5 > b.z0) and
@@ -126,7 +155,7 @@ function actor:collide_with_blocks(blocktable)
                 end
             end
         end
-        if self.dz <= 0 then
+        if self.dz < 0 then
             if (self.x + self.size*.5 > b.x0) and
             (self.x - self.size*.5 < b.x1) and
             (self.zold - self.size*.5 >= b.z1) and
@@ -219,7 +248,7 @@ player = actor:new{
     onblocks={} -- table of all the blocks that your y axis is on top of
 }
 
-function player:update(dt,blocks)
+function player:update(dt,blocks,others)
     self.dx=0
     self.dz=0
     self.xold=self.x
@@ -288,6 +317,7 @@ function player:update(dt,blocks)
 
     --collide!
     self:collide_with_blocks(blocks)
+    self:bump_others(others)
 end
 
 
@@ -358,22 +388,23 @@ end
 
 function coin:bump_me()
     self.killme=true
+    self:kill_me()
     coincount = coincount+1
 end
 
 function coin:draw()
     set_color(9)
-    lovr.graphics.translate(self.x,self.y,self.z)
+    lovr.graphics.translate(self.x,self.y+.5,self.z)
     lovr.graphics.rotate(math.pi/2,0,0,1)
     lovr.graphics.cylinder(0,0,0,0.05,2*math.pi*worldtime,1,0,0,.25,.25,true,6)
     lovr.graphics.origin()
     self:draw_shadow()
 end
 
-coin_list = {}
+actor_list = {}
 
 function make_coin(x,y,z)
-    add(coin_list,coin:new{x=x,y=y,z=z})
+    add(actor_list,coin:new{x=x,y=y,z=z})
 end
 
 -->8 Level
@@ -455,12 +486,19 @@ function level_chunk_init()
             zz0=zz-1
             zz1=zz+1+chunkdist
             local chunk={}
+            local chunk_act={}
             for _,b in pairs(level_blocks) do
                 if b.x0<xx1 and b.x1>xx0 and b.z0<zz1 and b.z1>zz0 then 
                     add(chunk,b)
                 end
             end
-            add(chunkcol,chunk)
+            for _,a in pairs(actor_list) do
+                if a.x > xx0 and a.x < xx1 and a.z > zz0 and a.z < zz1 then
+                    add(chunk_act,a)
+                    add(a.mychunks,chunk_act)
+                end
+            end
+            add(chunkcol,{chunk,chunk_act})
         end
         add(chunktable,chunkcol)
     end
@@ -538,9 +576,14 @@ function lovr.load()
     cam_init(p1)
 
     make_coin(5,2,8)
+    for aa=0,math.pi*2,.1 do
+        make_coin(7*math.cos(aa),1,7*math.sin(aa))
+    end
+
     level_chunk_init()
 
     lovr.graphics.setShader(shader)
+    lovr.graphics.setCullingEnabled(true) -- my camera stinks so this helps :)
     
     worldtime = 0
     coincount=0
@@ -550,10 +593,10 @@ function lovr.update(dt)
     input_update()
     -- player_update(dt)
 
-    player_chunk = return_blocks_from_chunk(p1.x,p1.z)
-    p1:update(dt, player_chunk)
+    level_chunk = return_blocks_from_chunk(p1.x,p1.z)
+    p1:update(dt, level_chunk[1], level_chunk[2])
 
-    for _,c in pairs(coin_list) do
+    for _,c in pairs(actor_list) do
         c:update()
     end
 
@@ -568,7 +611,7 @@ function lovr.draw()
     lovr.graphics.setBackgroundColor(color_table[2])
     -- player_draw()
     p1:draw()
-    for _,c in pairs(coin_list) do
+    for _,c in pairs(actor_list) do
         c:draw()
     end
 
