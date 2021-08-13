@@ -41,7 +41,7 @@ print_lines=0
 function print_gui(text)
     set_color(7)
     lovr.graphics.setFont()
-    lovr.graphics.print(text,p1.x,p1.y+1+print_lines,p1.z,.25)
+    lovr.graphics.print(text,p1.x,p1.y+1+print_lines,p1.z,.25,camangle,0,1,0)
     print_lines = print_lines + .5
 end
 
@@ -203,6 +203,7 @@ player = actor:new{
     x=0,
     y=1.5,
     z=9,
+    angle = math.pi*.5,
     xold=0,
     yold=1.5,
     zold=9,
@@ -222,27 +223,40 @@ function player:update(dt,blocks)
     self.xold=self.x
     self.yold=self.y
     self.zold=self.z
+    self.speed = 0
 
     if upkey then
-        self.dz = -2*dt
+        self.dz =self.dz -1 * math.cos(-camangle)
+        self.dx =self.dx -1 * math.sin(camangle)
+        self.speed = 2*dt
     elseif downkey then
-        self.dz = 2*dt
+        self.dz =self.dz+ 1 * math.cos(-camangle)
+        self.dx =self.dx+ 1 * math.sin(camangle)
+        self.speed = 2*dt
     end
 
     if rightkey then
-        self.dx = 2*dt
+        self.dx =self.dx+ 1 * math.cos(-camangle)
+        self.dz =self.dz+ -1 * math.sin(camangle)
+        self.speed = 2*dt
     elseif leftkey then
-        self.dx = -2*dt
+        self.dx =self.dx+ -1 * math.cos(-camangle)
+        self.dz =self.dz+ 1 * math.sin(camangle)
+        self.speed = 2*dt
     end
 
-    if ((self.dx ~= 0) and (self.dz ~= 0)) then
-        self.dx = self.dx * 0.707
-        self.dz = self.dz * 0.707
-    end
+    if (self.speed > 0) then self.angle = math.atan2(-self.dz,self.dx) end
+    self.dz = -self.speed*math.sin(self.angle)
+    self.dx = self.speed*math.cos(self.angle)
+
+    -- if ((self.dx ~= 0) and (self.dz ~= 0)) then
+    --     self.dx = self.dx * 0.707
+    --     self.dz = self.dz * 0.707
+    -- end
 
     if (upkey or downkey or rightkey or leftkey) then
         if self.grounded then self.walktimer = (self.walktimer + dt)%1 end
-        self.angle = math.atan2(-self.dz,self.dx)
+        self.angle = math.atan2(-self.dz,self.dx) % (math.pi*2)
     else
         self.walktimer = 0
     end
@@ -436,11 +450,41 @@ function cam_init(target)
 end
 
 function cam_update(dt)
+    angt = (p1.angle - 0.5*math.pi) % (math.pi*2)
+
     if (camleft) then camangle = camangle + 1*dt end
     if (camright) then camangle = camangle - 1*dt end
 
+    angt1 = angt-camangle
+    -- if angt > 1.5*math.pi then
+    --     angbest = angt1-2*math.pi
+    -- elseif angt1 < -math.pi then
+    --     angbest = 2*math.pi + angt1
+    -- elseif angt1 > math.pi then
+    --     angbest = 2*math.pi - angt1    
+    -- else
+    --     angbest = angt1
+    -- end
+    if angt1 < math.pi and angt1 >= 0 then 
+        angbest = angt1
+    elseif angt1 >= math.pi then
+        angbest = angt1-2*math.pi
+    elseif angt1 < 0 and angt1 > -math.pi then
+        angbest = angt1
+    else
+        angbest = 2*math.pi + angt1
+    end
+    
+    -- angbest = angt1
+    -- if (math.abs(angt2) < math.abs(angt1)) then angbest = angt2 end
+    if (downkey) then angbest = 0 end
+
+    if (not camleft and not camright) then camangle = camangle + (angbest)*dt end
+    camangle = camangle % (2*math.pi)
+
     camx = cam_target.x + 3*math.sin(camangle)
     camz = cam_target.z + 3*math.cos(-camangle)
+    camy = camy + (cam_target.y + 2 - camy)/4
 
     resetCam()
 end
@@ -492,5 +536,7 @@ function lovr.draw()
     -- debug stuff
     lovr.graphics.setShader()
     print_lines = 0
-    print_gui("Hero dx: "..p1.dx)
+    -- print_gui("Hero dx: "..p1.dx)
+    print_gui("P angle: "..math.floor(p1.angle*180/math.pi))
+    print_gui("cam ang: "..math.floor(camangle*180/math.pi))
 end
