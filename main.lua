@@ -2,242 +2,9 @@
 shader = require 'shader'
 thing = require 'thing'
 actor = require 'actor'
+player = require 'player'
+require 'convenience'
 
--->8 Convenience functions
-color_table = {
-    0x000000,-- 0 black
-    0x1d2b53,-- 1 dark-blue
-    0x7e2553,-- 2 dark-purple
-    0x008751,-- 3 dark-green
-    0xab5236,-- 4 brown
-    0x5f574f,-- 5 dark-gray
-    0xc2c3c7,-- 6 light-gray
-    0xfff1e8,-- 7 white
-    0xff004d,-- 8 red
-    0xffa300,-- 9 orange
-    0xffec27,-- 10 yellow
-    0x00e436,-- 11 green
-    0x29adff,-- 12 blue
-    0x83769c,-- 13 indigo
-    0xff77a8,-- 14 pink
-    0xffccaa,-- 15 peach
-}
-function set_color(ix)
-    -- sets color, pico8 style
-    lovr.graphics.setColor(color_table[ix+1])
-end
-
-function add(t,v)
-    table.insert(t,v)
-end
-
-function del(t,v)
-    ix=nil
-    for i,vv in pairs(t) do
-        if v==vv then
-            ix=i
-        end
-    end
-    if ix then table.remove(t,ix) end
-end
-
-function draw_cam_info()
-    lovr.graphics.print('Hello World',0,1.7,-3,.25)
-    for ix,val in pairs({lovr.graphics.getViewPose(1)}) do
-        lovr.graphics.print(val,0,1.7-.5*ix,-3,.5)    
-    end
-end
-
-print_lines=0
-function print_gui(text)
-    set_color(7)
-    lovr.graphics.setFont()
-    lovr.graphics.print(text,p1.x,p1.y+1+print_lines,p1.z,.25,camangle,0,1,0)
-    print_lines = print_lines + .5
-end
-
-
-
-
--->8 Player
-function input_init()
-    function lovr.keypressed(key)
-        if key=='right' then rightkey = true end
-        if key=='left' then leftkey = true end
-        if key=='up' then upkey = true end
-        if key=='down' then downkey = true end
-        if key=='z' then zkey = true end
-        if key=='x' then xkey = true end
-        if key=='w' then camup = true end
-        if key=='a' then camleft = true end
-        if key=='s' then camdown = true end
-        if key=='d' then camright = true end
-    end
-    function lovr.keyreleased(key)
-        if key=='right' then rightkey = false end
-        if key=='left' then leftkey = false end
-        if key=='up' then upkey = false end
-        if key=='down' then downkey = false end
-        if key=='z' then zkey = false end
-        if key=='x' then xkey = false end
-        if key=='w' then camup = false end
-        if key=='a' then camleft = false end
-        if key=='s' then camdown = false end
-        if key=='d' then camright = false end
-    end
-end
-
-function input_update()
-end
-
-player = actor:new{
-    x=0,
-    y=1.5,
-    z=9,
-    angle = math.pi*.5,
-    xold=0,
-    yold=1.5,
-    zold=9,
-    angle=0,
-    dx=0,
-    dy=0,
-    dz=0,
-    size=.5,
-    wakltimer=0,
-    grounded=false,
-    onblocks={} -- table of all the blocks that your y axis is on top of
-}
-
-function player:update(dt,blocks,others)
-    self.dx=0
-    self.dz=0
-    self.xold=self.x
-    self.yold=self.y
-    self.zold=self.z
-    self.speed = 0
-
-    if upkey then
-        self.dz =self.dz -1 * math.cos(-camangle)
-        self.dx =self.dx -1 * math.sin(camangle)
-        self.speed = 2*dt
-    elseif downkey then
-        self.dz =self.dz+ 1 * math.cos(-camangle)
-        self.dx =self.dx+ 1 * math.sin(camangle)
-        self.speed = 2*dt
-    end
-
-    if rightkey then
-        self.dx =self.dx+ 1 * math.cos(-camangle)
-        self.dz =self.dz+ -1 * math.sin(camangle)
-        self.speed = 2*dt
-    elseif leftkey then
-        self.dx =self.dx+ -1 * math.cos(-camangle)
-        self.dz =self.dz+ 1 * math.sin(camangle)
-        self.speed = 2*dt
-    end
-
-    if xkey then self.speed = self.speed*1.75 end
-
-    if (self.speed > 0) then self.angle = math.atan2(-self.dz,self.dx) end
-    self.dz = -self.speed*math.sin(self.angle)
-    self.dx = self.speed*math.cos(self.angle)
-
-    -- if ((self.dx ~= 0) and (self.dz ~= 0)) then
-    --     self.dx = self.dx * 0.707
-    --     self.dz = self.dz * 0.707
-    -- end
-
-    if (upkey or downkey or rightkey or leftkey) then
-        if self.grounded then 
-            self.walktimer = (self.walktimer + dt)%1 
-            if xkey then self.walktimer = (self.walktimer + .5*dt)%1 end
-        end
-        self.angle = math.atan2(-self.dz,self.dx) % (math.pi*2)
-    else
-        self.walktimer = 0
-    end
-
-    if (zkey and self.grounded) then
-        self.dy = 7*(1/60) -- can't use time elapsed here
-        self.grounded = false
-    end
-
-    if not self.grounded then
-        self.walktimer = .25
-    end
-
-
-    -- move!
-    self.z = self.z + self.dz
-    self.x = self.x + self.dx
-    
-    self.grounded=false
-    self.dy = self.dy - .3*dt
-    self.y = self.y + self.dy
-
-    --collide!
-    self:collide_with_blocks(blocks)
-    self:bump_others(others)
-end
-
-
-function player:draw()
-    --set transforms
-    lovr.graphics.translate(self.x,self.y,self.z)
-    lovr.graphics.rotate(self.angle,0,1,0)
-    
-    --body and mouth
-    set_color(12)
-    lovr.graphics.cube('fill',0,0.45+.05*math.sin(self.walktimer*12*math.pi),0,.5,0,0,1,0)
-    set_color(0)
-    lovr.graphics.box('fill',0.25*1,
-                    0.45+.05*math.sin(self.walktimer*12*math.pi), 
-                    0,
-                    .05,.25,.35,0,0,1,0)
-    -- teeth
-    set_color(7)
-    lovr.graphics.cube('fill',0.27,
-                0.45+0.125-.025+.05*math.sin(self.walktimer*12*math.pi), 
-                0.1,
-                0.05,0,0,1,0)
-    lovr.graphics.cube('fill',0.27,
-                0.45+0.125-.025+.05*math.sin(self.walktimer*12*math.pi), 
-                -0.12,
-                0.05,0,0,1,0)
-    lovr.graphics.cube('fill',0.27,
-                0.45+0.125-.025+.05*math.sin(self.walktimer*12*math.pi), 
-                0.0,
-                0.05,0,0,1,0)
-    lovr.graphics.cube('fill',0.27,
-                0.45-0.1-.0+.05*math.sin(self.walktimer*12*math.pi), 
-                0.05,
-                0.05,0,0,1,0)
-    lovr.graphics.cube('fill',0.27,
-                0.45-0.1-.0+.05*math.sin(self.walktimer*12*math.pi), 
-                -0.1,
-                0.05,0,0,1,0)
-    --legs
-    set_color(7)
-    lovr.graphics.cube('fill',0.1*0 + .3*math.sin(self.walktimer*6*math.pi)*1,
-                0.05 + .1*math.abs(math.sin(self.walktimer*6*math.pi)),
-                0.1*1,
-                .1,0,0,1,0)
-    lovr.graphics.cube('fill',0-.1*0 + .3*math.sin(-self.walktimer*6*math.pi)*1,
-                0+.05+ .1*math.abs(math.sin(self.walktimer*6*math.pi)),
-                0-.1*1,
-                .1,0,0,1,0)
-    
-    --arms
-    lovr.graphics.cube('fill',0+.3*0,0+.45+.05*math.sin(self.walktimer*12*math.pi),
-                0+.3,.1,0,0,1,0)
-    lovr.graphics.cube('fill',0-.3*0,0+.45+.05*math.sin(self.walktimer*12*math.pi),
-                0-.3,.1,0,0,1,0)
-
-    --shadow
-    -- lovr.graphics.pop()
-    lovr.graphics.origin()
-    self:draw_shadow()
-end
 
 --> objects
 coin = actor:new()
@@ -249,14 +16,14 @@ end
 function coin:bump_me()
     self.killme=true
     self:kill_me()
-    coincount = coincount+1
+    COINCOUNT = COINCOUNT+1
 end
 
 function coin:draw()
     set_color(9)
     lovr.graphics.translate(self.x,self.y+.5,self.z)
     lovr.graphics.rotate(math.pi/2,0,0,1)
-    lovr.graphics.cylinder(0,0,0,0.05,2*math.pi*worldtime,1,0,0,.25,.25,true,6)
+    lovr.graphics.cylinder(0,0,0,0.05,2*math.pi*WORLDTIME,1,0,0,.25,.25,true,6)
     lovr.graphics.origin()
     self:draw_shadow()
 end
@@ -385,10 +152,10 @@ function cam_init(target)
     function resetCam()
         camfrom = lovr.math.vec3(camx,camy,camz)
         camto = lovr.math.vec3(cam_target.x, cam_target.y+1, cam_target.z)
-        camup = lovr.math.vec3(0,1,0)
+        CAMUP = lovr.math.vec3(0,1,0)
 
         cammat = lovr.math.mat4()
-        cammat:lookAt(camfrom,camto,camup)
+        cammat:lookAt(camfrom,camto,CAMUP)
         lovr.graphics.setViewPose(1,cammat,true)
         shader:send('lovrLightDirection', camto - camfrom )
     end
@@ -398,8 +165,8 @@ end
 function cam_update(dt)
     angt = (p1.angle - 0.5*math.pi) % (math.pi*2)
 
-    if (camleft) then camangle = camangle + 1*dt end
-    if (camright) then camangle = camangle - 1*dt end
+    if (CAMLEFT) then camangle = camangle + 1*dt end
+    if (CAMRIGHT) then camangle = camangle - 1*dt end
 
     angt1 = angt-camangle
 
@@ -413,9 +180,9 @@ function cam_update(dt)
         angbest = 2*math.pi + angt1
     end
     
-    if (downkey) then angbest = 0 end
+    if (DOWNKEY) then angbest = 0 end
 
-    if (not camleft and not camright) then camangle = camangle + (angbest)*dt end
+    if (not CAMLEFT and not CAMRIGHT) then camangle = camangle + (angbest)*dt end
     camangle = camangle % (2*math.pi)
 
     camx = cam_target.x + 3*math.sin(camangle)
@@ -429,6 +196,12 @@ function cam_draw()
 end
 
 -->8 Game Loop
+
+function init_global_vars()
+    WORLDTIME=0
+    COINCOUNT=0
+end
+
 function lovr.load()
     input_init()
     p1 = player:new()
@@ -445,13 +218,10 @@ function lovr.load()
     lovr.graphics.setShader(shader)
     lovr.graphics.setCullingEnabled(true) -- my camera stinks so this helps :)
     
-    worldtime = 0
-    coincount=0
+    init_global_vars()
 end
 
 function lovr.update(dt)
-    input_update()
-    -- player_update(dt)
 
     level_chunk = return_blocks_from_chunk(p1.x,p1.z)
     p1:update(dt, level_chunk[1], level_chunk[2])
@@ -463,7 +233,7 @@ function lovr.update(dt)
     level_update(dt)
     cam_update(dt)
 
-    worldtime = worldtime + dt
+    WORLDTIME = WORLDTIME + dt
 end
 
 function lovr.draw()
@@ -480,10 +250,10 @@ function lovr.draw()
     
     -- debug stuff
     lovr.graphics.setShader()
-    print_lines = 0
+    PRINTLINES = 0
     -- print_gui("Hero dx: "..p1.dx)
     --print_gui("P angle: "..math.floor(p1.angle*180/math.pi))
     --print_gui("cam ang: "..math.floor(camangle*180/math.pi))
-    print_gui("col: "..col)
-    print_gui("row: "..row)
+    print_gui("col: "..col,camangle)
+    print_gui("row: "..row,camangle)
 end
