@@ -11,10 +11,6 @@ require 'convenience'
 -->8 creating instants for the game world
 
 
-function make_coin(x,y,z)
-    add(ACTOR_LIST,coin:new{x=x,y=y,z=z})
-end
-
 -->8 Level
 
 function level_init()
@@ -96,7 +92,6 @@ function cam_init(target)
     camy=cam_target.y+2
     camz=cam_target.z+3
     camdist = 3 -- floor distance from ahrry to cam
-    downangle=-math.pi*0.125
     camangle=0
     
     function resetCam()

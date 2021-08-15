@@ -22,4 +22,10 @@ function coin:draw()
     self:draw_shadow()
 end
 
+function make_coin(x,y,z)
+    add(ACTOR_LIST,coin:new{x=x,y=y,z=z})
+end
+
+
+
 return coin
