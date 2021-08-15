@@ -4,7 +4,7 @@ thing = require 'thing'
 coin = actor:new()
 
 function coin:init()
-    self:collide_with_blocks(level_blocks)
+    self:collide_with_blocks(LEVEL_BLOCKS)
 end
 
 function coin:bump_me()
@@ -21,5 +21,11 @@ function coin:draw()
     lovr.graphics.origin()
     self:draw_shadow()
 end
+
+function make_coin(x,y,z)
+    add(ACTOR_LIST,coin:new{x=x,y=y,z=z})
+end
+
+
 
 return coin

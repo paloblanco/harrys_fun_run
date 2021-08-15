@@ -10,3 +10,9 @@ This is targeted at Windows users.
 ```
 C:\src\harrys_fun_run> lovr .
 ```
+
+## How to play:
+- arrow keys - move
+- X - run
+- Z - jump
+- WASD - control camera (buggy right now)
