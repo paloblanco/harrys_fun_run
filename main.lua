@@ -3,71 +3,20 @@ shader = require 'shader'
 thing = require 'thing'
 actor = require 'actor'
 player = require 'player'
+coin = require 'objects'
+block = require 'block'
 require 'convenience'
 
 
---> objects
-coin = actor:new()
+-->8 creating instants for the game world
 
-function coin:init()
-    self:collide_with_blocks(level_blocks)
-end
-
-function coin:bump_me()
-    self.killme=true
-    self:kill_me()
-    COINCOUNT = COINCOUNT+1
-end
-
-function coin:draw()
-    set_color(9)
-    lovr.graphics.translate(self.x,self.y+.5,self.z)
-    lovr.graphics.rotate(math.pi/2,0,0,1)
-    lovr.graphics.cylinder(0,0,0,0.05,2*math.pi*WORLDTIME,1,0,0,.25,.25,true,6)
-    lovr.graphics.origin()
-    self:draw_shadow()
-end
-
-actor_list = {}
+ACTOR_LIST = {}
 
 function make_coin(x,y,z)
-    add(actor_list,coin:new{x=x,y=y,z=z})
+    add(ACTOR_LIST,coin:new{x=x,y=y,z=z})
 end
 
 -->8 Level
-
-block = thing:new{
-    x0=-1,
-    y0=-1,
-    z0=-1,
-    x1=1,
-    y1=1,
-    z1=1,
-    color=3
-}
-
-function block:init()
-    self.xmid = (self.x0+self.x1)/2
-    self.ymid = (self.y0+self.y1)/2
-    self.zmid = (self.z0+self.z1)/2
-    self.dx = math.abs(self.x0-self.x1)
-    self.dy = math.abs(self.y0-self.y1)
-    self.dz = math.abs(self.z0-self.z1)
-end
-
-function make_new_block(x0,y0,z0,x1,y1,z1,c)
-    c = c or 3
-    local b = block:new{
-        x0=x0,
-        y0=y0,
-        z0=z0,
-        x1=x1,
-        y1=y1,
-        z1=z1,
-        color=c
-    }
-    return b
-end
 
 function level_init()
     ground = make_new_block(-10,0,-10,10,1,10,3)
@@ -119,7 +68,7 @@ function level_chunk_init()
                     add(chunk,b)
                 end
             end
-            for _,a in pairs(actor_list) do
+            for _,a in pairs(ACTOR_LIST) do
                 if a.x > xx0 and a.x < xx1 and a.z > zz0 and a.z < zz1 then
                     add(chunk_act,a)
                     add(a.mychunks,chunk_act)
@@ -226,7 +175,7 @@ function lovr.update(dt)
     level_chunk = return_blocks_from_chunk(p1.x,p1.z)
     p1:update(dt, level_chunk[1], level_chunk[2])
 
-    for _,c in pairs(actor_list) do
+    for _,c in pairs(ACTOR_LIST) do
         c:update()
     end
 
@@ -241,7 +190,7 @@ function lovr.draw()
     lovr.graphics.setBackgroundColor(color_table[2])
     -- player_draw()
     p1:draw()
-    for _,c in pairs(actor_list) do
+    for _,c in pairs(ACTOR_LIST) do
         c:draw()
     end
 

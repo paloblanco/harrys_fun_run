@@ -38,7 +38,7 @@ function actor:bump_me(other)
 end
 
 function actor:kill_me()
-    del(actor_list,self)
+    del(ACTOR_LIST,self)
     for _,c in pairs(self.mychunks) do
         del(c,self)
     end
