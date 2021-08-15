@@ -10,7 +10,6 @@ require 'convenience'
 
 -->8 creating instants for the game world
 
-ACTOR_LIST = {}
 
 function make_coin(x,y,z)
     add(ACTOR_LIST,coin:new{x=x,y=y,z=z})
@@ -21,7 +20,7 @@ end
 function level_init()
     ground = make_new_block(-10,0,-10,10,1,10,3)
     b1 = make_new_block(0,1,3,3,2,5,6)
-    level_blocks = {
+    LEVEL_BLOCKS = {
         ground,
         make_new_block(0,1,3,3,2,5,6),
         make_new_block(0,1,3,3,3,4,6),
@@ -34,7 +33,7 @@ function level_update(dt)
 end
 
 function level_draw()
-    for i,b in pairs(level_blocks) do
+    for i,b in pairs(LEVEL_BLOCKS) do
         set_color(b.color)
         lovr.graphics.box('fill',b.xmid,b.ymid,b.zmid,b.dx,b.dy,b.dz,0,0,1,0)
     end
@@ -46,8 +45,8 @@ function level_chunk_init(chunkdist)
     local maxx=0
     local minz=0
     local maxz=0
-    chunkdist=5
-    for _,b in pairs(level_blocks) do
+    -- chunkdist=5
+    for _,b in pairs(LEVEL_BLOCKS) do
         minx = math.min(minx,b.x0)
         minz = math.min(minz,b.z0)
         maxx = math.max(maxx,b.x1)
@@ -57,13 +56,13 @@ function level_chunk_init(chunkdist)
     for xx = minx,maxx+1,chunkdist do
         local chunkcol={}
         for zz = minz,maxz+1,chunkdist do
-            xx0=xx-1
-            xx1=xx+chunkdist+1
-            zz0=zz-1
-            zz1=zz+1+chunkdist
+            local xx0=xx-1
+            local xx1=xx+chunkdist+1
+            local zz0=zz-1
+            local zz1=zz+1+chunkdist
             local chunk={}
             local chunk_act={}
-            for _,b in pairs(level_blocks) do
+            for _,b in pairs(LEVEL_BLOCKS) do
                 if b.x0<xx1 and b.x1>xx0 and b.z0<zz1 and b.z1>zz0 then 
                     add(chunk,b)
                 end
@@ -152,9 +151,11 @@ function init_global_vars()
     WORLDTIME=0
     COINCOUNT=0
     CHUNKDIST=5
+    ACTOR_LIST = {}
 end
 
 function lovr.load()
+    init_global_vars()
     input_init()
     p1 = player:new()
     level_init()
@@ -169,8 +170,6 @@ function lovr.load()
 
     lovr.graphics.setShader(shader)
     lovr.graphics.setCullingEnabled(true) -- my camera stinks so this helps :)
-    
-    init_global_vars()
 end
 
 function lovr.update(dt)

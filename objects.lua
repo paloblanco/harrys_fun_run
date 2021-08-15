@@ -4,7 +4,7 @@ thing = require 'thing'
 coin = actor:new()
 
 function coin:init()
-    self:collide_with_blocks(level_blocks)
+    self:collide_with_blocks(LEVEL_BLOCKS)
 end
 
 function coin:bump_me()
