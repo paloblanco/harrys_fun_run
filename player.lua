@@ -28,22 +28,22 @@ function player:update(dt,blocks,others)
     self.speed = 0
 
     if UPKEY then
-        self.dz =self.dz -1 * math.cos(-camangle)
-        self.dx =self.dx -1 * math.sin(camangle)
+        self.dz =self.dz -1 * math.cos(-CAM.angle)
+        self.dx =self.dx -1 * math.sin(CAM.angle)
         self.speed = 2*dt
     elseif DOWNKEY then
-        self.dz =self.dz+ 1 * math.cos(-camangle)
-        self.dx =self.dx+ 1 * math.sin(camangle)
+        self.dz =self.dz+ 1 * math.cos(-CAM.angle)
+        self.dx =self.dx+ 1 * math.sin(CAM.angle)
         self.speed = 2*dt
     end
 
     if RIGHTKEY then
-        self.dx =self.dx+ 1 * math.cos(-camangle)
-        self.dz =self.dz+ -1 * math.sin(camangle)
+        self.dx =self.dx+ 1 * math.cos(-CAM.angle)
+        self.dz =self.dz+ -1 * math.sin(CAM.angle)
         self.speed = 2*dt
     elseif LEFTKEY then
-        self.dx =self.dx+ -1 * math.cos(-camangle)
-        self.dz =self.dz+ 1 * math.sin(camangle)
+        self.dx =self.dx+ -1 * math.cos(-CAM.angle)
+        self.dz =self.dz+ 1 * math.sin(CAM.angle)
         self.speed = 2*dt
     end
 

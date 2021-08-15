@@ -5,6 +5,7 @@ actor = require 'actor'
 player = require 'player'
 coin = require 'objects'
 block = require 'block'
+camera = require 'camera'
 require 'convenience'
 
 
@@ -74,70 +75,13 @@ function level_chunk_init(chunkdist)
         add(chunktable,chunkcol)
     end
     local function return_blocks_from_chunk(x,z)
-        if x < minx or x > maxx or z < minz or z > maxz then return {} end
+        if x < minx or x > maxx or z < minz or z > maxz then return {{},{}} end
         col = math.floor((x-minx)/chunkdist) + 1
         row = math.floor((z-minz)/chunkdist) + 1
         thischunk = chunktable[col][row]
         return thischunk
     end
     return return_blocks_from_chunk
-end
-
-
-
--->8 Camera
-function cam_init(target)
-    cam_target=target
-    camx=cam_target.x
-    camy=cam_target.y+2
-    camz=cam_target.z+3
-    camdist = 3 -- floor distance from ahrry to cam
-    camangle=0
-    
-    function resetCam()
-        camfrom = lovr.math.vec3(camx,camy,camz)
-        camto = lovr.math.vec3(cam_target.x, cam_target.y+1, cam_target.z)
-        CAMUP = lovr.math.vec3(0,1,0)
-
-        cammat = lovr.math.mat4()
-        cammat:lookAt(camfrom,camto,CAMUP)
-        lovr.graphics.setViewPose(1,cammat,true)
-        shader:send('lovrLightDirection', camto - camfrom )
-    end
-    
-end
-
-function cam_update(dt)
-    angt = (p1.angle - 0.5*math.pi) % (math.pi*2)
-
-    if (CAMLEFT) then camangle = camangle + 1*dt end
-    if (CAMRIGHT) then camangle = camangle - 1*dt end
-
-    angt1 = angt-camangle
-
-    if angt1 < math.pi and angt1 >= 0 then 
-        angbest = angt1
-    elseif angt1 >= math.pi then
-        angbest = angt1-2*math.pi
-    elseif angt1 < 0 and angt1 > -math.pi then
-        angbest = angt1
-    else
-        angbest = 2*math.pi + angt1
-    end
-    
-    if (DOWNKEY) then angbest = 0 end
-
-    if (not CAMLEFT and not CAMRIGHT) then camangle = camangle + (angbest)*dt end
-    camangle = camangle % (2*math.pi)
-
-    camx = cam_target.x + 3*math.sin(camangle)
-    camz = cam_target.z + 3*math.cos(-camangle)
-    camy = camy + (cam_target.y + 2 - camy)/4
-
-    resetCam()
-end
-
-function cam_draw()
 end
 
 -->8 Game Loop
@@ -154,7 +98,9 @@ function lovr.load()
     input_init()
     p1 = player:new()
     level_init()
-    cam_init(p1)
+
+    CAM = camera:new()
+    CAM:setup(p1)
 
     make_coin(5,2,8)
     for aa=0,math.pi*2,.1 do
@@ -177,7 +123,7 @@ function lovr.update(dt)
     end
 
     level_update(dt)
-    cam_update(dt)
+    CAM:update(dt)
 
     WORLDTIME = WORLDTIME + dt
 end
@@ -192,7 +138,7 @@ function lovr.draw()
     end
 
     level_draw()
-    cam_draw()
+    CAM:draw()
     
     -- debug stuff
     lovr.graphics.setShader()
@@ -200,6 +146,6 @@ function lovr.draw()
     -- print_gui("Hero dx: "..p1.dx)
     --print_gui("P angle: "..math.floor(p1.angle*180/math.pi))
     --print_gui("cam ang: "..math.floor(camangle*180/math.pi))
-    print_gui("col: "..col,camangle)
-    print_gui("row: "..row,camangle)
+    print_gui("col: "..col,CAM.angle)
+    print_gui("row: "..row,CAM.angle)
 end
