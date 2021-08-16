@@ -46,7 +46,7 @@ end
 
 
 
--->8 Player
+-->8 Controls
 function input_init()
     function lovr.keypressed(key)
         if key=='right' then RIGHTKEY = true end
@@ -72,4 +72,39 @@ function input_init()
         if key=='s' then CAMDOWN = false end
         if key=='d' then CAMRIGHT = false end
     end
+end
+
+function input_process_keyboard(camera_angle)
+    local zval = 0
+    local xval = 0
+    local mag = 0
+    local angle = 0
+    local runbutton = false
+    local jumpbutton = false
+    
+    if UPKEY then
+        zval =zval -1 * math.cos(-camera_angle)
+        xval =xval -1 * math.sin(camera_angle)
+        mag = 1
+    elseif DOWNKEY then
+        zval =zval+ 1 * math.cos(-camera_angle)
+        xval =xval+ 1 * math.sin(camera_angle)
+        mag = 1
+    end
+    if RIGHTKEY then
+        xval =xval+ 1 * math.cos(-camera_angle)
+        zval =zval+ -1 * math.sin(camera_angle)
+        mag = 1
+    elseif LEFTKEY then
+        xval =xval+ -1 * math.cos(-camera_angle)
+        zval =zval+ 1 * math.sin(camera_angle)
+        mag = 1
+    end
+
+    if XKEY then runbutton = true end
+    if ZKEY then jumpbutton= true end
+
+    angle = math.atan2(-zval,xval)
+
+    return xval, zval, mag, angle, runbutton, jumpbutton
 end

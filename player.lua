@@ -19,51 +19,32 @@ player = actor:new{
     onblocks={} -- table of all the blocks that your y axis is on top of
 }
 
-function player:update(dt,blocks,others)
+function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpbutton)
     self.dx=0
     self.dz=0
     self.xold=self.x
     self.yold=self.y
     self.zold=self.z
-    self.speed = 0
 
-    if UPKEY then
-        self.dz =self.dz -1 * math.cos(-camangle)
-        self.dx =self.dx -1 * math.sin(camangle)
-        self.speed = 2*dt
-    elseif DOWNKEY then
-        self.dz =self.dz+ 1 * math.cos(-camangle)
-        self.dx =self.dx+ 1 * math.sin(camangle)
-        self.speed = 2*dt
-    end
+    self.speed = 2*dt*mag
+    if runbutton then self.speed = self.speed*1.75 end
 
-    if RIGHTKEY then
-        self.dx =self.dx+ 1 * math.cos(-camangle)
-        self.dz =self.dz+ -1 * math.sin(camangle)
-        self.speed = 2*dt
-    elseif LEFTKEY then
-        self.dx =self.dx+ -1 * math.cos(-camangle)
-        self.dz =self.dz+ 1 * math.sin(camangle)
-        self.speed = 2*dt
-    end
+    -- if (mag > 0) then self.angle = angle end
 
-    if XKEY then self.speed = self.speed*1.75 end
+    self.dz = self.speed*zval
+    self.dx = self.speed*xval
 
-    if (self.speed > 0) then self.angle = math.atan2(-self.dz,self.dx) end
-    self.dz = -self.speed*math.sin(self.angle)
-    self.dx = self.speed*math.cos(self.angle)
-
-    if (UPKEY or DOWNKEY or RIGHTKEY or LEFTKEY) then
+    if (mag > 0) then
         if self.grounded then 
             self.walktimer = (self.walktimer + dt)%1 
-            if XKEY then self.walktimer = (self.walktimer + .5*dt)%1 end
+            if runbutton then self.walktimer = (self.walktimer + .5*dt)%1 end
         end
-        self.angle = math.atan2(-self.dz,self.dx) % (math.pi*2)
+        self.angle = angle % (math.pi*2)
     else
         self.walktimer = 0
     end
 
-    if (ZKEY and self.grounded) then
+    if (jumpbutton and self.grounded) then
         self.dy = 7*(1/60) -- can't use time elapsed here
         self.grounded = false
     end
