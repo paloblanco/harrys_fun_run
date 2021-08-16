@@ -22,10 +22,10 @@ end
 function camera:reset()
     local camfrom = lovr.math.vec3(self.x,self.y,self.z)
     local camto = lovr.math.vec3(self.target.x, self.target.y+1, self.target.z)
-    CAMUP = lovr.math.vec3(0,1,0)
+    local camup = lovr.math.vec3(0,1,0)
 
-    cammat = lovr.math.mat4()
-    cammat:lookAt(camfrom,camto,CAMUP)
+    local cammat = lovr.math.mat4()
+    cammat:lookAt(camfrom,camto,camup)
     lovr.graphics.setViewPose(1,cammat,true)
     shader:send('lovrLightDirection', camto - camfrom )
 end

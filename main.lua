@@ -117,7 +117,9 @@ end
 function lovr.update(dt)
 
     level_chunk = get_chunk(p1.x,p1.z)
-    p1:update(dt, level_chunk[1], level_chunk[2])
+    
+    xval, zval, mag, angle, runbutton, jumpbutton = input_process_keyboard(CAM.angle)
+    p1:update(dt, level_chunk[1], level_chunk[2],xval, zval, mag, angle, runbutton, jumpbutton)
 
     for _,c in pairs(ACTOR_LIST) do
         c:update()
