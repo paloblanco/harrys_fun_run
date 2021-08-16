@@ -98,18 +98,18 @@ function lovr.load()
     init_global_vars()
     input_init()
     p1 = player:new()
-    level_init()
-
     CAM = camera:new()
     CAM:setup(p1)
-
+    
+    -- level
+    level_init()
     make_coin(5,2,8)
     for aa=0,math.pi*2,.1 do
         make_coin(7*math.cos(aa),1,7*math.sin(aa))
     end
-
     get_chunk = level_chunk_init(CHUNKDIST)
 
+    -- graphics
     lovr.graphics.setShader(shader)
     lovr.graphics.setCullingEnabled(true) -- my camera stinks so this helps :)
 end
