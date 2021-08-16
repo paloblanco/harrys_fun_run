@@ -6,6 +6,7 @@ player = require 'player'
 coin = require 'objects'
 block = require 'block'
 camera = require 'camera'
+level = require 'level'
 require 'convenience'
 
 
@@ -15,15 +16,7 @@ require 'convenience'
 -->8 Level
 
 function level_init()
-    local ground = make_new_block(-10,0,-10,10,1,10,3)
-    local b1 = make_new_block(0,1,3,3,2,5,6)
-    LEVEL_BLOCKS = {
-        ground,
-        make_new_block(0,1,3,3,2,5,6),
-        make_new_block(0,1,3,3,3,4,6),
-        make_new_block(0,2,2,3,4,3,6),
-        make_new_block(-4,3,1,3,5,2,6),
-    }
+    LEVEL_BLOCKS = level
 end
 
 function level_update(dt)
