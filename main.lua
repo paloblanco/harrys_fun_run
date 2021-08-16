@@ -15,8 +15,8 @@ require 'convenience'
 -->8 Level
 
 function level_init()
-    ground = make_new_block(-10,0,-10,10,1,10,3)
-    b1 = make_new_block(0,1,3,3,2,5,6)
+    local ground = make_new_block(-10,0,-10,10,1,10,3)
+    local b1 = make_new_block(0,1,3,3,2,5,6)
     LEVEL_BLOCKS = {
         ground,
         make_new_block(0,1,3,3,2,5,6),
@@ -92,6 +92,7 @@ function init_global_vars()
     CHUNKDIST=5
     ACTOR_LIST = {}
 end
+
 
 function lovr.load()
     init_global_vars()
