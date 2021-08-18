@@ -35,6 +35,8 @@
 -- }
 -- ]])
 
+
+
 shader = lovr.graphics.newShader('standard', {
     flags = {
         normalMap = false,
@@ -47,13 +49,17 @@ shader = lovr.graphics.newShader('standard', {
 })
 
 -- shader:send('lovrLightDirection', { -1, -1, -1.5 })
-shader:send('lovrLightColor', { .9, .9, .8, 1.0 })
-shader:send('lovrExposure', 10)
+shader:send('lovrLightColor', { 1, 1, 1, 1.0 })
+shader:send('lovrExposure', 5)
 -- shader:send('liteColor', {1.0, 1.0, 1.0, 1.0})
 -- shader:send('lightPos', {2.0, 5.0, 0.0})
-shader:send('lovrAmbience', {1, 1, 1, 1.0})
-shader:send('lovrSpecularStrength', 2.5)
+shader:send('lovrAmbience', {.5, .5, .5, 1})
+shader:send('lovrSpecularStrength', 100)
 shader:send('lovrMetallic', 128.0)
 -- shader:send('viewPos', {0.0, 0.0, 0.0})
 
+
+
+
 return shader
+
