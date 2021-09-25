@@ -1,0 +1,19 @@
+# Todo list
+My list of todos. My ultimate goal here is to make this a good set of boilerplate code to get started with making character action games in LOVR.
+
+## Required
+- build for desktop - ACTIVE
+- build for web - ACTIVE
+    - test on itch
+    - test on homepage
+- sound implemented
+- menu system
+    - main menu
+    - pause menu
+- pausing functionality
+- gui API and gui layer
+- get other fonts
+
+## Nice to have
+- build for mobile
+    - mobile controls
