@@ -16,3 +16,8 @@ C:\src\harrys_fun_run> lovr .
 - X - run
 - Z - jump
 - WASD - control camera (buggy right now)
+
+## Build instructions
+### Client app
+
+### Webapp
