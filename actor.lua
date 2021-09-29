@@ -68,7 +68,7 @@ function actor:collide_with_blocks(blocktable)
                     -- bump to the right
                     self.x = b.x1+self.size*0.5
                     self.dx=0
-                    goto continue
+                    -- goto continue
                 end
             end
         end
@@ -82,7 +82,7 @@ function actor:collide_with_blocks(blocktable)
                     -- bump to the left
                     self.x = b.x0-self.size*0.5
                     self.dx=0
-                    goto continue
+                    -- goto continue
                 end
             end
         end
@@ -96,7 +96,7 @@ function actor:collide_with_blocks(blocktable)
                     -- bump up
                     self.z = b.z0-self.size*0.5
                     self.dz=0
-                    goto continue
+                    -- goto continue
                 end
             end
         end
@@ -110,7 +110,7 @@ function actor:collide_with_blocks(blocktable)
                     -- bump down
                     self.z = b.z1+self.size*0.5
                     self.dz=0
-                    goto continue
+                    -- goto continue
                 end
             end
         end
@@ -118,7 +118,7 @@ function actor:collide_with_blocks(blocktable)
         (self.z + self.size*0.5>b.z0) and (self.z - self.size*0.5 < b.z1)) then
             add(self.onblocks,b)
         end
-        ::continue::
+        -- ::continue::
     end
     for i,b in pairs(self.onblocks) do
         if (self.x + self.size*.5 > b.x0) and
