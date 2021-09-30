@@ -1,2 +1,3 @@
 7z a -tzip game.zip *.lua
-copy /b C:\src\lovr\lovr.exe+game.zip game.exe
+copy /b C:\src\lovr\lovr.exe+game.zip dist\game.exe
+7z a -tzip game_win.zip dist\*
