@@ -108,3 +108,9 @@ function input_process_keyboard(camera_angle)
 
     return xval, zval, mag, angle, runbutton, jumpbutton
 end
+
+function sign(num)
+    if num > 0 then return 1
+    elseif num < 0 then return -1
+    else return 0 end
+end

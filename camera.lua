@@ -1,4 +1,5 @@
 thing = require 'thing'
+require 'convenience'
 
 -->8 Camera
 camera = thing:new{
@@ -10,13 +11,23 @@ camera = thing:new{
     dist=3
 }
 
+function camera:init()
+    self.pixwidth = lovr.graphics.getWidth()   -- Window pixel width and height
+    self.pixheight = lovr.graphics.getHeight()
+    self.aspect = self.pixwidth/self.pixheight           -- Window aspect ratio
+    self.height = 2                            -- Window width and height in screen coordinates
+    self.width = self.aspect*2                      -- ( We will pick the coordinate system [[-1,1],[-aspect,aspect]] )
+    self.topmargin = 0.1                       -- Space between top of screen and top of grid
+end
+
 function camera:setup(target)
     self.target=target
     self.x=self.target.x
     self.y=self.target.y+2
     self.z=self.target.z+3
     self.dist = 3 -- floor distance from ahrry to cam
-    self.angle=0    
+    self.angle=0
+    self.matrix=0
 end
 
 function camera:reset()
@@ -25,9 +36,12 @@ function camera:reset()
     local camup = lovr.math.vec3(0,1,0)
 
     local cammat = lovr.math.mat4()
-    cammat:lookAt(camfrom,camto,camup)
+    cammat:lookAt(camfrom,camto,camup)  
+    local camme = lovr.math.mat4()
+    camme:target(camfrom,camto,camup)
     lovr.graphics.setViewPose(1,cammat,true)
     shader:send('lovrLightDirection', camto - camfrom )
+    self.matrix = camme
 end
 
 function camera:update(dt)
@@ -51,7 +65,11 @@ function camera:update(dt)
     
     if (DOWNKEY) then angbest = 0 end
 
-    if (not CAMLEFT and not CAMRIGHT) then self.angle = self.angle + (angbest)*dt end
+    if self.target.dx==0 and self.target.dz==0 then
+        self.angle = self.angle + (0.5*sign(angbest))*dt 
+    elseif (not CAMLEFT and not CAMRIGHT) then 
+        self.angle = self.angle + (angbest)*dt 
+    end
     self.angle = self.angle % (2*math.pi)
 
     self.x = self.target.x + 3*math.sin(self.angle)
@@ -62,6 +80,15 @@ function camera:update(dt)
 end
 
 function camera:draw()
+end
+
+function camera:draw_text(text,x,y,size)
+    set_color(7)
+    lovr.graphics.setFont()
+    lovr.graphics.transform(self.matrix)
+    
+    lovr.graphics.print(text,x,y,-0.5,size,0,0,1,0)
+    lovr.graphics.origin()
 end
 
 

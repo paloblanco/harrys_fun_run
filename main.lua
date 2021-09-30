@@ -138,8 +138,12 @@ function lovr.draw()
     level_draw()
     CAM:draw()
     
-    -- debug stuff
+    -- GUI
     lovr.graphics.setShader()
+    
+    CAM:draw_text("hi",-0.3,0.2,.1)
+    
+    -- debug
     PRINTLINES = 0
     -- print_gui("Hero dx: "..p1.dx)
     --print_gui("P angle: "..math.floor(p1.angle*180/math.pi))
