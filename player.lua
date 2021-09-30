@@ -47,6 +47,7 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
     if (jumpbutton and self.grounded) then
         self.dy = 7*(1/60) -- can't use time elapsed here
         self.grounded = false
+        snd:play(1)
     end
 
     if not self.grounded then

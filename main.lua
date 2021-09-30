@@ -7,6 +7,7 @@ coin = require 'objects'
 block = require 'block'
 camera = require 'camera'
 level = require 'level'
+sfx = require 'sfx'
 require 'convenience'
 
 
@@ -90,6 +91,7 @@ end
 function lovr.load()
     init_global_vars()
     input_init()
+    snd = sfx:new()
     p1 = player:new()
     CAM = camera:new()
     CAM:setup(p1)

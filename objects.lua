@@ -11,6 +11,7 @@ function coin:bump_me()
     self.killme=true
     self:kill_me()
     COINCOUNT = COINCOUNT+1
+    snd:play(2)
 end
 
 function coin:draw()
