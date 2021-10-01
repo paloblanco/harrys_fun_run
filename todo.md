@@ -11,8 +11,8 @@ My list of todos. My ultimate goal here is to make this a good set of boilerplat
 - menu system
     - main menu
     - pause menu
-- pausing functionality
-- gui API and gui layer
+*- pausing functionality - done*
+*- gui API and gui layer - done*
 - get other fonts
 
 ## Nice to have

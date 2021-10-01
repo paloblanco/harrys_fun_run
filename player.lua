@@ -19,6 +19,10 @@ player = actor:new{
     onblocks={} -- table of all the blocks that your y axis is on top of
 }
 
+function player:init()
+    self.model = lovr.graphics.newModel('resources/harry.obj')
+end
+
 function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpbutton)
     self.dx=0
     self.dz=0
@@ -75,35 +79,37 @@ function player:draw()
     lovr.graphics.rotate(self.angle,0,1,0)
     
     --body and mouth
-    set_color(12)
-    lovr.graphics.cube('fill',0,0.45+.05*math.sin(self.walktimer*12*math.pi),0,.5,0,0,1,0)
-    set_color(0)
-    lovr.graphics.box('fill',0.25*1,
-                    0.45+.05*math.sin(self.walktimer*12*math.pi), 
-                    0,
-                    .05,.25,.35,0,0,1,0)
-    -- teeth
-    set_color(7)
-    lovr.graphics.cube('fill',0.27,
-                0.45+0.125-.025+.05*math.sin(self.walktimer*12*math.pi), 
-                0.1,
-                0.05,0,0,1,0)
-    lovr.graphics.cube('fill',0.27,
-                0.45+0.125-.025+.05*math.sin(self.walktimer*12*math.pi), 
-                -0.12,
-                0.05,0,0,1,0)
-    lovr.graphics.cube('fill',0.27,
-                0.45+0.125-.025+.05*math.sin(self.walktimer*12*math.pi), 
-                0.0,
-                0.05,0,0,1,0)
-    lovr.graphics.cube('fill',0.27,
-                0.45-0.1-.0+.05*math.sin(self.walktimer*12*math.pi), 
-                0.05,
-                0.05,0,0,1,0)
-    lovr.graphics.cube('fill',0.27,
-                0.45-0.1-.0+.05*math.sin(self.walktimer*12*math.pi), 
-                -0.1,
-                0.05,0,0,1,0)
+    self.model:draw(0,0.45+.05*math.sin(self.walktimer*12*math.pi),0,.5*1.25,0,0,1,0,1)
+
+    -- set_color(12)
+    -- lovr.graphics.cube('fill',0,0.45+.05*math.sin(self.walktimer*12*math.pi),0,.5,0,0,1,0)
+    -- set_color(0)
+    -- lovr.graphics.box('fill',0.25*1,
+    --                 0.45+.05*math.sin(self.walktimer*12*math.pi), 
+    --                 0,
+    --                 .05,.25,.35,0,0,1,0)
+    -- -- teeth
+    -- set_color(7)
+    -- lovr.graphics.cube('fill',0.27,
+    --             0.45+0.125-.025+.05*math.sin(self.walktimer*12*math.pi), 
+    --             0.1,
+    --             0.05,0,0,1,0)
+    -- lovr.graphics.cube('fill',0.27,
+    --             0.45+0.125-.025+.05*math.sin(self.walktimer*12*math.pi), 
+    --             -0.12,
+    --             0.05,0,0,1,0)
+    -- lovr.graphics.cube('fill',0.27,
+    --             0.45+0.125-.025+.05*math.sin(self.walktimer*12*math.pi), 
+    --             0.0,
+    --             0.05,0,0,1,0)
+    -- lovr.graphics.cube('fill',0.27,
+    --             0.45-0.1-.0+.05*math.sin(self.walktimer*12*math.pi), 
+    --             0.05,
+    --             0.05,0,0,1,0)
+    -- lovr.graphics.cube('fill',0.27,
+    --             0.45-0.1-.0+.05*math.sin(self.walktimer*12*math.pi), 
+    --             -0.1,
+    --             0.05,0,0,1,0)
     --legs
     set_color(7)
     lovr.graphics.cube('fill',0.1*0 + .3*math.sin(self.walktimer*6*math.pi)*1,
