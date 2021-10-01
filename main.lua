@@ -85,6 +85,7 @@ function init_global_vars()
     COINCOUNT=0
     CHUNKDIST=5
     ACTOR_LIST = {}
+    PAUSE = false
 end
 
 
@@ -107,13 +108,16 @@ function lovr.load()
     -- graphics
     lovr.graphics.setShader(shader)
     lovr.graphics.setCullingEnabled(true) -- my camera stinks so this helps :)
+
+    -- kick off the game
+    lovr.update = update_gameplay
+    lovr.draw = draw_gameplay
 end
 
-function lovr.update(dt)
-
+function update_gameplay(dt)
     level_chunk = get_chunk(p1.x,p1.z)
     
-    xval, zval, mag, angle, runbutton, jumpbutton = input_process_keyboard(CAM.angle)
+    xval, zval, mag, angle, runbutton, jumpbutton, pressenter = input_process_keyboard(CAM.angle)
     p1:update(dt, level_chunk[1], level_chunk[2],xval, zval, mag, angle, runbutton, jumpbutton)
 
     for _,c in pairs(ACTOR_LIST) do
@@ -124,9 +128,22 @@ function lovr.update(dt)
     CAM:update(dt)
 
     WORLDTIME = WORLDTIME + dt
+
+    if pressenter then
+        pause_game()
+    end
 end
 
-function lovr.draw()
+function update_pause(dt)
+    xval, zval, mag, angle, runbutton, jumpbutton, pressenter = input_process_keyboard(CAM.angle)
+    CAM:reset() -- need to still update matrix
+    if pressenter then
+        unpause_game()
+    end
+end
+
+
+function draw_gameplay()
     lovr.graphics.setShader(shader)
     lovr.graphics.setBackgroundColor(color_table[2])
     -- player_draw()
@@ -141,7 +158,8 @@ function lovr.draw()
     -- GUI
     lovr.graphics.setShader()
     
-    CAM:draw_text("hi",-0.3,0.2,.1)
+    CAM:draw_text("hi",-0.5,0.3,.05)
+    CAM:draw_text("hi",-0.5,0.2,.15)
     
     -- debug
     PRINTLINES = 0
@@ -150,4 +168,12 @@ function lovr.draw()
     --print_gui("cam ang: "..math.floor(camangle*180/math.pi))
     print_gui("col: "..col,CAM.angle)
     print_gui("row: "..row,CAM.angle)
+end
+
+function pause_game()
+    lovr.update = update_pause
+end
+
+function unpause_game()
+    lovr.update = update_gameplay
 end

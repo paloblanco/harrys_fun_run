@@ -69,9 +69,13 @@ function camera:update(dt)
     if (DOWNKEY) then angbest = 0 end
 
     if self.target.dx==0 and self.target.dz==0 then
-        self.angle = self.angle + (0.5*sign(angbest))*dt 
-    elseif (not CAMLEFT and not CAMRIGHT) then 
-        self.angle = self.angle + (angbest)*dt 
+        -- self.angle = self.angle + (0.5*sign(angbest))*dt 
+        damp = 0.25
+    else
+        damp=1
+    end
+    if (not CAMLEFT and not CAMRIGHT) then 
+        self.angle = self.angle + (damp*angbest)*dt 
     end
     self.angle = self.angle % (2*math.pi)
 
