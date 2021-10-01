@@ -17,7 +17,9 @@ function camera:init()
     self.aspect = self.pixwidth/self.pixheight           -- Window aspect ratio
     self.height = 2                            -- Window width and height in screen coordinates
     self.width = self.aspect*2                      -- ( We will pick the coordinate system [[-1,1],[-aspect,aspect]] )
-    self.topmargin = 0.1                       -- Space between top of screen and top of grid
+    self.margin = 0.1                       -- Space between top of screen and top of grid
+    self.guidepth = 0.5
+    
 end
 
 function camera:setup(target)
@@ -28,6 +30,7 @@ function camera:setup(target)
     self.dist = 3 -- floor distance from ahrry to cam
     self.angle=0
     self.matrix=0
+    
 end
 
 function camera:reset()
@@ -87,7 +90,7 @@ function camera:draw_text(text,x,y,size)
     lovr.graphics.setFont()
     lovr.graphics.transform(self.matrix)
     
-    lovr.graphics.print(text,x,y,-0.5,size,0,0,1,0)
+    lovr.graphics.print(text,x,y,-self.guidepth,size,0,0,1,0)
     lovr.graphics.origin()
 end
 
