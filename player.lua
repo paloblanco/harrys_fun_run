@@ -21,6 +21,7 @@ player = actor:new{
 
 function player:init()
     self.model = lovr.graphics.newModel('resources/harry.obj')
+    self:collide_with_blocks(LEVEL_BLOCKS)
 end
 
 function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpbutton)
@@ -48,7 +49,8 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
         self.walktimer = 0
     end
 
-    if (jumpbutton and self.grounded) then
+    -- if (jumpbutton and self.grounded) then
+    if (jumpbutton) then
         self.dy = 7*(1/60) -- can't use time elapsed here
         self.grounded = false
         snd:play(1)

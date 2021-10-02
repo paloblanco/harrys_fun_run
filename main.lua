@@ -19,8 +19,8 @@ require 'convenience'
 -->8 Level
 
 function level_init()
-    LEVEL_BLOCKS = make_level()
-    make_objects()
+    LEVEL_BLOCKS, GOAL, START = make_level()
+    make_objects(GOAL, START)
 end
 
 function level_update(dt)
@@ -120,6 +120,7 @@ function update_gameplay(dt)
     
     xval, zval, mag, angle, runbutton, jumpbutton, pressenter = input_process_keyboard(CAM.angle)
     p1:update(dt, level_chunk[1], level_chunk[2],xval, zval, mag, angle, runbutton, jumpbutton)
+    -- p1:update(dt, LEVEL_BLOCKS, ACTOR_LIST,xval, zval, mag, angle, runbutton, jumpbutton)
 
     for _,c in pairs(ACTOR_LIST) do
         c:update()
@@ -165,8 +166,8 @@ function draw_gameplay()
     -- debug
     PRINTLINES = 0
 
-    print_gui("col: "..col,CAM.angle)
-    print_gui("row: "..row,CAM.angle)
+    -- print_gui("col: "..col,CAM.angle)
+    -- print_gui("row: "..row,CAM.angle)
 end
 
 function pause_game()
