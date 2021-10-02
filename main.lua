@@ -3,10 +3,12 @@ shader = require 'shader'
 thing = require 'thing'
 actor = require 'actor'
 player = require 'player'
-coin = require 'objects'
+-- coin = require 'objects'
+require 'objects'
 block = require 'block'
 camera = require 'camera'
-level = require 'level'
+-- level = require 'level'
+require 'level_random'
 sfx = require 'sfx'
 require 'convenience'
 
@@ -17,7 +19,8 @@ require 'convenience'
 -->8 Level
 
 function level_init()
-    LEVEL_BLOCKS = level
+    LEVEL_BLOCKS = make_level()
+    make_objects()
 end
 
 function level_update(dt)
@@ -93,16 +96,14 @@ function lovr.load()
     init_global_vars()
     input_init()
     snd = sfx:new()
-    p1 = player:new()
-    CAM = camera:new()
-    CAM:setup(p1)
+    -- p1 = player:new()
     
     -- level
     level_init()
-    make_coin(5,2,8)
-    for aa=0,math.pi*2,.1 do
-        make_coin(7*math.cos(aa),1,7*math.sin(aa))
-    end
+    CAM = camera:new()
+    CAM:setup(p1)
+
+    
     get_chunk = level_chunk_init(CHUNKDIST)
 
     -- graphics
@@ -163,9 +164,7 @@ function draw_gameplay()
     
     -- debug
     PRINTLINES = 0
-    -- print_gui("Hero dx: "..p1.dx)
-    --print_gui("P angle: "..math.floor(p1.angle*180/math.pi))
-    --print_gui("cam ang: "..math.floor(camangle*180/math.pi))
+
     print_gui("col: "..col,CAM.angle)
     print_gui("row: "..row,CAM.angle)
 end

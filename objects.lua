@@ -27,6 +27,26 @@ function make_coin(x,y,z)
     add(ACTOR_LIST,coin:new{x=x,y=y,z=z})
 end
 
+flag = actor:new()
 
+function flag:init()
+    self:collide_with_blocks(LEVEL_BLOCKS)
+    self.model = lovr.graphics.newModel('resources/cactus.obj')
+end
+
+function flag:draw()
+    lovr.graphics.translate(self.x,self.y,self.z)
+    lovr.graphics.rotate(self.angle,0,1,0)
+    lovr.graphics.setColor(1,1,1,1)
+    
+    self.model:draw(0,0,0,1*1.25,0,0,1,0,1)
+
+    lovr.graphics.origin()
+    -- self:draw_shadow()
+end
+
+function make_flag(x,y,z)
+    add(ACTOR_LIST,flag:new{x=x,y=y,z=z})
+end
 
 return coin
