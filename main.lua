@@ -89,23 +89,15 @@ function init_global_vars()
     CHUNKDIST=5
     ACTOR_LIST = {}
     PAUSE = false
+    LEVELIX=1
 end
 
-
-function lovr.load()
-    init_global_vars()
-    input_init()
-    snd = sfx:new()
-    -- p1 = player:new()
-    
+function init_level()
     -- level
     level_init()
     CAM = camera:new()
     CAM:setup(p1)
-
-    
     get_chunk = level_chunk_init(CHUNKDIST)
-
     -- graphics
     lovr.graphics.setShader(shader)
     lovr.graphics.setCullingEnabled(true) -- my camera stinks so this helps :)
@@ -113,6 +105,14 @@ function lovr.load()
     -- kick off the game
     lovr.update = update_gameplay
     lovr.draw = draw_gameplay
+end
+
+function lovr.load()
+    init_global_vars()
+    input_init()
+    snd = sfx:new()
+    -- p1 = player:new()  
+    init_level()    
 end
 
 function update_gameplay(dt)
@@ -167,8 +167,14 @@ function draw_gameplay()
     -- GUI
     lovr.graphics.setShader()
     
-    CAM:draw_text("hi",-0.5,0.3,.05)
-    CAM:draw_text("hi",-0.5,0.2,.15)
+    -- CAM:draw_text("hi",-0.5,0.3,.05)
+    -- CAM:draw_text("hi",-0.5,0.2,.15)
+    if PAUSE then 
+        CAM:draw_text("Paused",0,0.2,.1)
+        CAM:draw_text("Press Enter to unpause",0,0.1,.075)
+        CAM:draw_text("Press R to reset game",0,0.05,.075)
+
+    end
     
     -- debug
     PRINTLINES = 0
@@ -179,8 +185,10 @@ end
 
 function pause_game()
     lovr.update = update_pause
+    PAUSE = true
 end
 
 function unpause_game()
     lovr.update = update_gameplay
+    PAUSE = false
 end
