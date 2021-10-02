@@ -16,7 +16,8 @@ player = actor:new{
     size=.5,
     wakltimer=0,
     grounded=false,
-    onblocks={} -- table of all the blocks that your y axis is on top of
+    onblocks={}, -- table of all the blocks that your y axis is on top of
+    canjump=false
 }
 
 function player:init()
@@ -30,6 +31,7 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
     self.xold=self.x
     self.yold=self.y
     self.zold=self.z
+    if self.grounded then self.canjump=true end
 
     self.speed = 2*dt*mag
     if runbutton then self.speed = self.speed*1.75 end
@@ -49,15 +51,18 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
         self.walktimer = 0
     end
 
-    -- if (jumpbutton and self.grounded) then
-    if (jumpbutton) then
+    if (jumpbutton and self.canjump) then
         self.dy = 7*(1/60) -- can't use time elapsed here
         self.grounded = false
+        self.canjump=false
         snd:play(1)
     end
 
     if not self.grounded then
         self.walktimer = .25
+        if self.canjump==true then
+            if self.dy < -.3*.25 then self.canjump = false end
+        end
     end
 
 

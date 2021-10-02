@@ -118,7 +118,7 @@ end
 function update_gameplay(dt)
     level_chunk = get_chunk(p1.x,p1.z)
     
-    xval, zval, mag, angle, runbutton, jumpbutton, pressenter = input_process_keyboard(CAM.angle)
+    xval, zval, mag, angle, runbutton, jumpbutton, pressenter, pressr = input_process_keyboard(CAM.angle)
     p1:update(dt, level_chunk[1], level_chunk[2],xval, zval, mag, angle, runbutton, jumpbutton)
     -- p1:update(dt, LEVEL_BLOCKS, ACTOR_LIST,xval, zval, mag, angle, runbutton, jumpbutton)
 
@@ -134,20 +134,26 @@ function update_gameplay(dt)
     if pressenter then
         pause_game()
     end
+    if pressr then
+        lovr.load()
+    end
 end
 
 function update_pause(dt)
-    xval, zval, mag, angle, runbutton, jumpbutton, pressenter = input_process_keyboard(CAM.angle)
+    xval, zval, mag, angle, runbutton, jumpbutton, pressenter, pressr = input_process_keyboard(CAM.angle)
     CAM:reset() -- need to still update matrix
     if pressenter then
         unpause_game()
+    end
+    if pressr then
+        lovr.load()
     end
 end
 
 
 function draw_gameplay()
     lovr.graphics.setShader(shader)
-    lovr.graphics.setBackgroundColor(color_table[2])
+    lovr.graphics.setBackgroundColor(color_table[13])
     -- player_draw()
     p1:draw()
     for _,c in pairs(ACTOR_LIST) do

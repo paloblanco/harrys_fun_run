@@ -17,7 +17,8 @@ actor = thing:new{
     dz=0,
     killme=false,
     walktimer=0,
-    mychunks={}
+    mychunks={},
+    walls={}, --wall collisions
 }
 
 function actor:draw_shadow()
@@ -57,18 +58,20 @@ end
 
 function actor:collide_with_blocks(blocktable)
     self.onblocks = {}
+    self.walls = {}
     for i,b in pairs(blocktable) do
         if self.dx < 0 then
             if (self.xold - self.size*.5 >= b.x1) and
             (self.x - self.size*.5 < b.x1) and
             (self.z + self.size*.5 > b.z0) and 
             (self.z - self.size*.5 < b.z1) then
-                if (self.y < b.y1) and
+                if (self.y < b.y1-.2) and
                 (self.y+self.size > b.y0) then
                     -- bump to the right
                     self.x = b.x1+self.size*0.5
                     self.dx=0
                     -- goto continue
+                    add(self.walls,0)
                 end
             end
         end
@@ -77,11 +80,12 @@ function actor:collide_with_blocks(blocktable)
             (self.x + self.size*.5 >= b.x0) and
             (self.z + self.size*.5 > b.z0) and
             (self.z - self.size*.5 < b.z1) then
-                if (self.y < b.y1) and
+                if (self.y < b.y1-.2) and
                 (self.y+self.size > b.y0) then
                     -- bump to the left
                     self.x = b.x0-self.size*0.5
                     self.dx=0
+                    add(self.walls,1)
                     -- goto continue
                 end
             end
@@ -91,11 +95,12 @@ function actor:collide_with_blocks(blocktable)
             (self.x - self.size*.5 < b.x1) and
             (self.z + self.size*.5 > b.z0) and
             (self.zold + self.size*.5 <= b.z0) then
-                if (self.y < b.y1) and
+                if (self.y < b.y1-.2) and
                 (self.y+self.size > b.y0) then
                     -- bump up
                     self.z = b.z0-self.size*0.5
                     self.dz=0
+                    add(self.walls,3)
                     -- goto continue
                 end
             end
@@ -105,11 +110,12 @@ function actor:collide_with_blocks(blocktable)
             (self.x - self.size*.5 < b.x1) and
             (self.zold - self.size*.5 >= b.z1) and
             (self.z - self.size*.5 < b.z1) then
-                if (self.y < b.y1) and
+                if (self.y < b.y1-.2) and
                 (self.y+self.size > b.y0) then
                     -- bump down
                     self.z = b.z1+self.size*0.5
                     self.dz=0
+                    add(self.walls,2)
                     -- goto continue
                 end
             end
@@ -125,7 +131,7 @@ function actor:collide_with_blocks(blocktable)
             (self.x - self.size*.5 < b.x1) and
             (self.z + self.size*.5 > b.z0) and
             (self.z - self.size*.5 < b.z1) then
-            if self.dy < 0 then
+            if self.dy <= 0 then
                 if (self.y < b.y1) and
                 (self.y+self.size > b.y0) then
                     self.grounded=true

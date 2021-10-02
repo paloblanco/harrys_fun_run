@@ -36,6 +36,11 @@ function del(t,v)
     if ix then table.remove(t,ix) end
 end
 
+function rnd(x)
+    x=x or 1
+    return x*lovr.math.random()
+end
+
 PRINTLINES=0
 function print_gui(text, angle)
     set_color(7)
@@ -60,6 +65,7 @@ function input_init()
         if key=='s' then CAMDOWN = true end
         if key=='d' then CAMRIGHT = true end
         if key=='return' then ENTER = true end
+        if key=='r' then RESTART = true end
     end
     function lovr.keyreleased(key)
         if key=='right' then RIGHTKEY = false end
@@ -73,8 +79,10 @@ function input_init()
         if key=='s' then CAMDOWN = false end
         if key=='d' then CAMRIGHT = false end
         if key=='return' then ENTER = false end
+        if key=='r' then RESTART = false end
     end
     ENTEROLD=false
+    RESTARTOLD=false
 end
 
 function input_process_keyboard(camera_angle)
@@ -85,6 +93,7 @@ function input_process_keyboard(camera_angle)
     local runbutton = false
     local jumpbutton = false
     local pressenter = false
+    local pressr = false
     
     if UPKEY then
         zval =zval -1 * math.cos(-camera_angle)
@@ -116,13 +125,20 @@ function input_process_keyboard(camera_angle)
     end
     ENTEROLD=ENTER
 
-    return xval, zval, mag, angle, runbutton, jumpbutton, pressenter
+    if RESTART and not RESTARTOLD then
+        pressr = true
+    end
+    RESTARTOLD=RESTART
+
+
+
+    return xval, zval, mag, angle, runbutton, jumpbutton, pressenter, pressr
 end
 
 function input_process_keyboard_paused()
     if ENTER and not ENTEROLD then
         PAUSE = not PAUSE
-    end    
+    end
 end
 
 function sign(num)
