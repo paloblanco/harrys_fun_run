@@ -17,11 +17,12 @@ player = actor:new{
     wakltimer=0,
     grounded=false,
     onblocks={}, -- table of all the blocks that your y axis is on top of
-    canjump=false
+    canjump=false,
+    canwalljump=false,
 }
 
 function player:init()
-    self.model = lovr.graphics.newModel('resources/harry.obj')
+    self.model = lovr.graphics.newModel('resources/javelina.obj')
     self:collide_with_blocks(LEVEL_BLOCKS)
 end
 
@@ -33,8 +34,11 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
     self.zold=self.z
     if self.grounded then self.canjump=true end
 
+
     self.speed = 2*dt*mag
+    runbutton=true
     if runbutton then self.speed = self.speed*1.75 end
+    
 
     -- if (mag > 0) then self.angle = angle end
 
@@ -56,12 +60,25 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
         self.grounded = false
         self.canjump=false
         snd:play(1)
+    elseif (jumpbutton and self.canwalljump) then
+        self.dy = 5*(1/60) -- can't use time elapsed here
+        self.grounded = false
+        self.canwalljump=false
+        snd:play(1)
     end
+
+    self.canwalljump = false
 
     if not self.grounded then
         self.walktimer = .25
         if self.canjump==true then
             if self.dy < -.3*.25 then self.canjump = false end
+        end
+        if #self.walls > 0 and self.dy < 0 then
+            self.canwalljump=true
+            self.dx = self.dx*.5
+            self.dz = self.dz*.5
+            self.dy = math.max(self.dy,-3*dt)
         end
     end
 
@@ -82,20 +99,20 @@ end
 
 function player:draw()
     --set transforms
+    -- set_color()
     lovr.graphics.translate(self.x,self.y,self.z)
     lovr.graphics.rotate(self.angle,0,1,0)
     
     --body and mouth
-    self.model:draw(0,0.45+.05*math.sin(self.walktimer*12*math.pi),0,.5*1.25,0,0,1,0,1)
-
-    
+    lovr.graphics.setColor(1,1,1,1)
+    self.model:draw(0,0.45+.04*math.sin(self.walktimer*12*math.pi),0,.75*1.25,0,0,1,0,1)
     --legs
     set_color(7)
-    lovr.graphics.cube('fill',0.1*0 + .3*math.sin(self.walktimer*6*math.pi)*1,
+    lovr.graphics.cube('fill',0.1*0 + .2*math.sin(self.walktimer*6*math.pi)*1,
                 0.05 + .1*math.abs(math.sin(self.walktimer*6*math.pi)),
                 0.1*1,
                 .1,0,0,1,0)
-    lovr.graphics.cube('fill',0-.1*0 + .3*math.sin(-self.walktimer*6*math.pi)*1,
+    lovr.graphics.cube('fill',0-.1*0 + .2*math.sin(-self.walktimer*6*math.pi)*1,
                 0+.05+ .1*math.abs(math.sin(self.walktimer*6*math.pi)),
                 0-.1*1,
                 .1,0,0,1,0)

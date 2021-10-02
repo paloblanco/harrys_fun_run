@@ -18,8 +18,9 @@ color_table = {
     0xffccaa,-- 15 peach
 }
 function set_color(ix)
-    -- sets color, pico8 style
+
     lovr.graphics.setColor(color_table[ix+1])
+
 end
 
 function add(t,v)

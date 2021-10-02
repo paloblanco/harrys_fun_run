@@ -3,11 +3,9 @@ shader = require 'shader'
 thing = require 'thing'
 actor = require 'actor'
 player = require 'player'
--- coin = require 'objects'
 require 'objects'
 block = require 'block'
 camera = require 'camera'
--- level = require 'level'
 require 'level_random'
 sfx = require 'sfx'
 require 'convenience'
@@ -30,6 +28,8 @@ function level_draw()
     for i,b in pairs(LEVEL_BLOCKS) do
         set_color(b.color)
         lovr.graphics.box('fill',b.xmid,b.ymid,b.zmid,b.dx,b.dy,b.dz,0,0,1,0)
+        lovr.graphics.setColor(1,1,1,1)
+        lovr.graphics.box('line',b.xmid,b.ymid,b.zmid,b.dx,b.dy,b.dz,0,0,1,0)
     end
 end
 
@@ -155,10 +155,11 @@ function draw_gameplay()
     lovr.graphics.setShader(shader)
     lovr.graphics.setBackgroundColor(color_table[13])
     -- player_draw()
-    p1:draw()
+    
     for _,c in pairs(ACTOR_LIST) do
         c:draw()
     end
+    p1:draw()
 
     level_draw()
     CAM:draw()
