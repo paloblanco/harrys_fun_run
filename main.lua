@@ -89,6 +89,9 @@ function init_global_vars()
     CHUNKDIST=5
     PAUSE = false
     LOADING=false
+    STARTING=false
+    GAMEOVER=false
+    GAMEWIN=false
     LEVELIX=1
 end
 
@@ -113,9 +116,28 @@ end
 
 function next_level()
     LEVELIX = LEVELIX + 1
+    if LEVELIX == 5 then GAMEWIN = true end
     LOAD_TIME=0
     LOADING=true
     lovr.update = update_loading
+end
+
+function game_start()
+    STARTING=true
+    LOAD_TIME = 0
+    lovr.update = update_start
+end
+
+function game_over()
+    GAMEOVER = true
+    LOAD_TIME = 0
+    lovr.update = update_gameover
+end
+
+function game_win()
+    GAMEWIN = true
+    LOAD_TIME = 0
+    lovr.update = update_gamewin
 end
 
 function lovr.load()
@@ -123,7 +145,8 @@ function lovr.load()
     input_init()
     snd = sfx:new()
     -- p1 = player:new()  
-    init_level()    
+    init_level() 
+    game_start()
 end
 
 function update_gameplay(dt)
@@ -152,6 +175,9 @@ function update_gameplay(dt)
     if pressj then
         next_level()
     end
+    if p1.y < -10 then
+        game_over()
+    end
 end
 
 function update_pause(dt)
@@ -169,12 +195,33 @@ function update_loading(dt)
     LOAD_TIME = LOAD_TIME + dt
     xval, zval, mag, angle, runbutton, jumpbutton, pressenter, pressr = input_process_keyboard(CAM.angle)
     CAM:reset() -- need to still update matrix
-    if LOAD_TIME > 2 then
+    if LOAD_TIME > 2 and not GAMEWIN then
         init_level()
+    end
+    if LOAD_TIME > 1 and GAMEWIN and jumpbutton then
+        init_level()
+        GAMEWIN = false
     end
 end
 
+function update_start(dt)
+    LOAD_TIME = LOAD_TIME + dt
+    xval, zval, mag, angle, runbutton, jumpbutton, pressenter, pressr = input_process_keyboard(CAM.angle)
+    CAM:reset() -- need to still update matrix
+    if jumpbutton and LOAD_TIME > .5 then
+        lovr.update = update_gameplay
+        STARTING=false
+    end
+end
 
+function update_gameover(dt)
+    LOAD_TIME = LOAD_TIME + dt
+    xval, zval, mag, angle, runbutton, jumpbutton, pressenter, pressr = input_process_keyboard(CAM.angle)
+    CAM:reset() -- need to still update matrix
+    if jumpbutton and LOAD_TIME > .5 then
+        lovr.load()
+    end
+end
 
 function draw_gameplay()
     lovr.graphics.setShader(shader)
@@ -200,12 +247,28 @@ function draw_gameplay()
         CAM:draw_text("Press R to reset game",0,0.05,.075)
     end
 
-    if LOADING then 
+    if GAMEWIN then
+        CAM:draw_text("You beat the game, Jenry!",0,0.2,.1)
+        CAM:draw_text("Thanks for playing!!",-0.25,-0.05,.075)
+        CAM:draw_text("--Rocco, aka Palo Blanco",0.25,-0.1,.055)
+        if LOAD_TIME > 1 then CAM:draw_text("Press Z to keep playing endless mode!",0,-0.2,.075) end
+    elseif LOADING then 
         CAM:draw_text("Good job Jenry!",0,0.2,.1)
         CAM:draw_text("You beat level "..(LEVELIX-1),0,0.1,.075)
         CAM:draw_text("Moving on to level "..LEVELIX,0,0.05,.075)
     end
+
+    if STARTING then
+        CAM:draw_text("Jenry Javelina!",0,0.2,.1)
+        CAM:draw_text("Made by Palo Blanco for LD49",0,-0.05,.075)
+        if LOAD_TIME > .5 then CAM:draw_text("Press Z to start",0,-0.1,.075) end
+    end
     
+    if GAMEOVER then
+        CAM:draw_text("Oh no, Jenry!",0,0.2,.1)
+        CAM:draw_text("Thanks for playing!",0,-0.05,.075)
+        if LOAD_TIME > .5 then CAM:draw_text("Press Z to restart",0,-0.1,.075) end
+    end
     -- debug
     PRINTLINES = 0
 
