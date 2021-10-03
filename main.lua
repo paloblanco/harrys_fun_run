@@ -19,9 +19,13 @@ require 'convenience'
 function make_level_and_place_objects()
     LEVEL_BLOCKS, GOAL, START = make_level()
     make_objects(GOAL, START)
+    BLOCKS_UPDATE = {}
 end
 
 function level_update(dt)
+    for _,b in pairs(BLOCKS_UPDATE) do
+        b:update(dt)
+    end
 end
 
 function level_draw()

@@ -46,7 +46,8 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
     self.dx = self.speed*xval
 
     if (mag > 0) then
-        if self.grounded then 
+        -- if self.grounded then 
+        if self.canjump then 
             self.walktimer = (self.walktimer + dt)%1 
             if runbutton then self.walktimer = (self.walktimer + .5*dt)%1 end
         end
@@ -70,7 +71,7 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
     self.canwalljump = false
 
     if not self.grounded then
-        self.walktimer = .25
+        if not self.canjump then self.walktimer = .25 end
         if self.canjump==true then
             if self.dy < -.3*.25 then self.canjump = false end
         end
@@ -79,7 +80,14 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
             self.dx = self.dx*.5
             self.dz = self.dz*.5
             self.dy = math.max(self.dy,-3*dt)
+            for _,b in pairs(self.walls) do
+                if not b.falling then b:start_fall() end
+            end
         end
+    end
+
+    for _,b in pairs(self.killblocks) do
+        if not b.falling then b:start_fall() end
     end
 
 
