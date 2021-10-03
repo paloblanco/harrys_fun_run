@@ -101,6 +101,7 @@ function init_global_vars()
     GAMEWIN=false
     DEAD=false
     LEVELIX=1
+    DEATHCOUNT=0
 end
 
 function init_level()
@@ -264,9 +265,9 @@ function draw_gameplay()
     lovr.graphics.setShader()
     
     if LEVELIX <= 4 then
-        CAM:draw_text("level: "..LEVELIX.."/4    STAMINA: "..math.floor(p1.stamina),-0,0.3,.05)
+        CAM:draw_text("level: "..LEVELIX.."/4    Time: "..math.floor(WORLDTIME).."    STAMINA: "..math.floor(p1.stamina),-0,0.3,.05)
     else
-        CAM:draw_text("level: "..LEVELIX.."      STAMINA: "..math.floor(p1.stamina),-0,0.3,.05)
+        CAM:draw_text("level: "..LEVELIX.."    Time: "..math.floor(WORLDTIME).."      STAMINA: "..math.floor(p1.stamina),-0,0.3,.05)
     end
     -- CAM:draw_text("hi",-0.5,0.2,.15)
     if PAUSE then 
