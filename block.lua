@@ -19,6 +19,13 @@ function block:init()
     self.dz = math.abs(self.z0-self.z1)
 end
 
+function block:draw()
+    set_color(self.color)
+    lovr.graphics.box('fill',self.xmid,self.ymid,self.zmid,self.dx,self.dy,self.dz,0,0,1,0)
+    lovr.graphics.setColor(1,1,1,1)
+    lovr.graphics.box('line',self.xmid,self.ymid,self.zmid,self.dx,self.dy,self.dz,0,0,1,0)
+end
+
 function make_new_block(x0,y0,z0,x1,y1,z1,c)
     c = c or 3
     local b = block:new{

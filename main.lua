@@ -26,11 +26,10 @@ end
 
 function level_draw()
     for i,b in pairs(LEVEL_BLOCKS) do
-        set_color(b.color)
-        lovr.graphics.box('fill',b.xmid,b.ymid,b.zmid,b.dx,b.dy,b.dz,0,0,1,0)
-        lovr.graphics.setColor(1,1,1,1)
-        lovr.graphics.box('line',b.xmid,b.ymid,b.zmid,b.dx,b.dy,b.dz,0,0,1,0)
+        b:draw()
     end
+    set_color(6)
+    lovr.graphics.sphere(0,-2008,0,2000)
 end
 
 function level_chunk_init(chunkdist)
