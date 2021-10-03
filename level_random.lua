@@ -3,14 +3,14 @@ require 'objects'
 require 'convenience'
 
 
-function make_level()
+function make_level(ix)
     local params = {
         xmin = 0,
         zmin = 0,
         ymin=-10,
         xmax = 32,
-        zmax = 64,
-        ymax = 10,
+        zmax = 64 + 32*(LEVELIX-1),
+        ymax = 10*LEVELIX,
         endz=0
     }
     params.endx = (params.xmin+params.xmax)/2 -2 + rnd(5)
@@ -35,16 +35,16 @@ function make_level()
     for xx=params.xmin,params.xmax,1 do
         for zz=params.zmin,params.zmax,1 do
             local proceed=true
-            if rnd() < 0.97 then proceed = false end
+            if rnd() < 0.95 then proceed = false end
             if proceed then
-                local xw = 1 + (rnd(2))
-                local zw = 1 + (rnd(2))
-                local xwn = 1 + (rnd(2))
-                local zwn = 1 + (rnd(2)) 
+                local xw = .5 + (rnd(2))
+                local zw = .5 + (rnd(2))
+                local xwn = .5 + (rnd(2))
+                local zwn = .5 + (rnd(2)) 
 
                 -- NEED TO ADD CODE TO STOP BLOCKS FROM OVERLAPPING
                 local distfromgoal = math.abs(goal.x-xx) + math.abs(goal.z-zz)
-                local yh = params.ymax*(1-distfromgoal/params.maxd) - 4 + rnd(5)
+                local yh = params.ymax*(1-distfromgoal/params.maxd) - 2 + rnd(4)
                 yh = math.max(yh,1)
                 cchoice = {11,15,3}
                 local c = cchoice[1+math.floor(rnd(3))]
@@ -61,7 +61,7 @@ function make_level()
     start.z1 = params.zmax + 6
     start.z0 = params.zmax + 1
     start.y0 = -10
-    start.y1 = 0.5
+    start.y1 = 3.5
     local thisblock = make_new_block(start.x0,start.y0,start.z0,
                                     start.x1,start.y1,start.z1,3,false)
     add(level,thisblock)

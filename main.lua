@@ -17,7 +17,7 @@ require 'convenience'
 -->8 Level
 
 function make_level_and_place_objects()
-    LEVEL_BLOCKS, GOAL, START = make_level()
+    LEVEL_BLOCKS, GOAL, START = make_level(LEVELIX)
     make_objects(GOAL, START)
     BLOCKS_UPDATE = {}
 end
@@ -33,7 +33,7 @@ function level_draw()
         b:draw()
     end
     set_color(6)
-    lovr.graphics.sphere(0,-2008,0,2000)
+    lovr.graphics.sphere(0,-4006,0,4000)
 end
 
 function level_chunk_init(chunkdist)
@@ -49,14 +49,18 @@ function level_chunk_init(chunkdist)
         maxx = math.max(maxx,b.x1)
         maxz = math.max(maxz,b.z1)
     end
+    minx = math.floor(minx - 2)
+    maxx = math.floor(maxx + 2)
+    minz = math.floor(minz - 2)
+    maxz = math.floor(maxz + 2)
     chunktable={}
     for xx = minx,maxx+1,chunkdist do
         local chunkcol={}
         for zz = minz,maxz+1,chunkdist do
-            local xx0=xx-1
-            local xx1=xx+chunkdist+1
-            local zz0=zz-1
-            local zz1=zz+1+chunkdist
+            local xx0=xx-2
+            local xx1=xx+chunkdist+2
+            local zz0=zz-2
+            local zz1=zz+2+chunkdist
             local chunk={}
             local chunk_act={}
             for _,b in pairs(LEVEL_BLOCKS) do
@@ -95,6 +99,7 @@ function init_global_vars()
     STARTING=false
     GAMEOVER=false
     GAMEWIN=false
+    DEAD=false
     LEVELIX=1
 end
 
@@ -129,6 +134,17 @@ function game_start()
     STARTING=true
     LOAD_TIME = 0
     lovr.update = update_start
+end
+
+function jenry_died()
+    if LEVELIX <= 4 then
+        DEAD = true
+        LOADING = true
+        LOAD_TIME = 0
+        lovr.update = update_loading
+    else
+        game_over()
+    end
 end
 
 function game_over()
@@ -179,7 +195,7 @@ function update_gameplay(dt)
         next_level()
     end
     if p1.y < -10 then
-        game_over()
+        jenry_died()
     end
 end
 
@@ -198,7 +214,12 @@ function update_loading(dt)
     LOAD_TIME = LOAD_TIME + dt
     xval, zval, mag, angle, runbutton, jumpbutton, pressenter, pressr = input_process_keyboard(CAM.angle)
     CAM:reset() -- need to still update matrix
-    if LOAD_TIME > 2 and not GAMEWIN then
+    if DEAD then
+        if LOAD_TIME > 1 and jumpbutton then
+            init_level()
+            DEAD = false
+        end
+    elseif LOAD_TIME > 2 and not GAMEWIN then
         init_level()
     end
     if LOAD_TIME > 1 and GAMEWIN and jumpbutton then
@@ -242,7 +263,11 @@ function draw_gameplay()
     -- GUI
     lovr.graphics.setShader()
     
-    CAM:draw_text("level: "..LEVELIX,-0.5,0.3,.05)
+    if LEVELIX <= 4 then
+        CAM:draw_text("level: "..LEVELIX.."/4    STAMINA: "..math.floor(p1.stamina),-0,0.3,.05)
+    else
+        CAM:draw_text("level: "..LEVELIX.."      STAMINA: "..math.floor(p1.stamina),-0,0.3,.05)
+    end
     -- CAM:draw_text("hi",-0.5,0.2,.15)
     if PAUSE then 
         CAM:draw_text("Paused",0,0.2,.1)
@@ -255,6 +280,10 @@ function draw_gameplay()
         CAM:draw_text("Thanks for playing!!",-0.25,-0.05,.075)
         CAM:draw_text("--Rocco, aka Palo Blanco",0.25,-0.1,.055)
         if LOAD_TIME > 1 then CAM:draw_text("Press Z to keep playing endless mode!",0,-0.2,.075) end
+    elseif DEAD then
+        CAM:draw_text("Oh no, Jenry!",0,0.2,.1)
+        CAM:draw_text("try again...",0,-0.05,.075)
+        if LOAD_TIME > .5 then CAM:draw_text("Press Z to try this level again",0,-0.1,.075) end
     elseif LOADING then 
         CAM:draw_text("Good job Jenry!",0,0.2,.1)
         CAM:draw_text("You beat level "..(LEVELIX-1),0,0.1,.075)

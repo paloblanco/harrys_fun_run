@@ -19,6 +19,7 @@ player = actor:new{
     onblocks={}, -- table of all the blocks that your y axis is on top of
     canjump=false,
     canwalljump=false,
+    stamina = 100
 }
 
 function player:init()
@@ -62,10 +63,17 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
         self.canjump=false
         snd:play(1)
     elseif (jumpbutton and self.canwalljump) then
-        self.dy = 5*(1/60) -- can't use time elapsed here
-        self.grounded = false
-        self.canwalljump=false
-        snd:play(1)
+        if self.stamina > 20 then
+            self.dy = 5*(1/60) -- can't use time elapsed here
+            for _,b in pairs(self.walls) do
+                if ((not b.falling) and (b.canfall)) then b:start_fall() end
+            end
+            self.grounded = false
+            self.canwalljump=false
+            snd:play(1)
+            self.stamina = math.max(self.stamina - 30, 0)
+        else
+        end
     end
 
     self.canwalljump = false
@@ -80,9 +88,6 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
             self.dx = self.dx*.5
             self.dz = self.dz*.5
             self.dy = math.max(self.dy,-3*dt)
-            for _,b in pairs(self.walls) do
-                if ((not b.falling) and (b.canfall)) then b:start_fall() end
-            end
         end
     end
 
@@ -98,6 +103,8 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
     self.grounded=false
     self.dy = self.dy - .3*dt
     self.y = self.y + self.dy
+
+    self.stamina = math.min(self.stamina + 30*dt,100)
 
     --collide!
     self:collide_with_blocks(blocks)
