@@ -8,6 +8,7 @@ block = require 'block'
 camera = require 'camera'
 require 'level_random'
 sfx = require 'sfx'
+music = require 'music'
 require 'convenience'
 
 
@@ -20,12 +21,14 @@ function make_level_and_place_objects()
     LEVEL_BLOCKS, GOAL, START = make_level(LEVELIX)
     make_objects(GOAL, START)
     BLOCKS_UPDATE = {}
+    CLOUDLIST = {}
 end
 
 function level_update(dt)
     for _,b in pairs(BLOCKS_UPDATE) do
         b:update(dt)
     end
+    update_clouds(dt)
 end
 
 function level_draw()
@@ -34,6 +37,7 @@ function level_draw()
     end
     set_color(6)
     lovr.graphics.sphere(0,-4006,0,4000)
+    draw_clouds()
 end
 
 function level_chunk_init(chunkdist)
@@ -102,6 +106,14 @@ function init_global_vars()
     DEAD=false
     LEVELIX=1
     DEATHCOUNT=0
+    SB = lovr.graphics.newTexture({
+        left = 'resources/p1.png',
+        right = 'resources/p1.png',
+        top = 'resources/pup.png',
+        bottom = 'resources/pdown.png',
+        front = 'resources/p1.png',
+        back = 'resources/p1.png',
+      })
 end
 
 function init_level()
@@ -111,6 +123,7 @@ function init_level()
     LEVEL_TIME=0
     LEVEL_BLOCKS = {}
     make_level_and_place_objects()
+    mus:play(2)
     CAM = camera:new()
     CAM:setup(p1)
     get_chunk = level_chunk_init(CHUNKDIST)
@@ -128,17 +141,23 @@ function next_level()
     if LEVELIX == 5 then GAMEWIN = true end
     LOAD_TIME=0
     LOADING=true
+    -- mus:stop()
+    snd:play(2)
     lovr.update = update_loading
 end
 
 function game_start()
     STARTING=true
     LOAD_TIME = 0
+    mus:stop()
+    mus:play(1)
     lovr.update = update_start
 end
 
 function jenry_died()
     DEATHCOUNT = DEATHCOUNT+1
+    snd:play(4)
+    mus:stop()
     if LEVELIX <= 4 then
         DEAD = true
         LOADING = true
@@ -151,6 +170,7 @@ end
 
 function game_over()
     GAMEOVER = true
+    mus:stop()
     LOAD_TIME = 0
     lovr.update = update_gameover
 end
@@ -158,6 +178,7 @@ end
 function game_win()
     GAMEWIN = true
     LOAD_TIME = 0
+    mus:stop()
     lovr.update = update_gamewin
 end
 
@@ -165,6 +186,7 @@ function lovr.load()
     init_global_vars()
     input_init()
     snd = sfx:new()
+    mus = music:new()
     -- p1 = player:new()  
     init_level() 
     game_start()
@@ -191,6 +213,7 @@ function update_gameplay(dt)
         pause_game()
     end
     if pressr then
+        mus:stop()
         lovr.load()
     end
     if pressj then
@@ -208,6 +231,7 @@ function update_pause(dt)
         unpause_game()
     end
     if pressr then
+        mus:stop()
         lovr.load()
     end
 end
@@ -237,6 +261,7 @@ function update_start(dt)
     if jumpbutton and LOAD_TIME > .5 then
         lovr.update = update_gameplay
         STARTING=false
+        mus:play(2)
     end
 end
 
@@ -250,15 +275,17 @@ function update_gameover(dt)
 end
 
 function draw_gameplay()
+    lovr.graphics.setShader()
+    -- lovr.graphics.setBackgroundColor(color_table[13])
+    lovr.graphics.skybox(SB)
     lovr.graphics.setShader(shader)
-    lovr.graphics.setBackgroundColor(color_table[13])
-    -- lovr.graphics.skybox(skybox)
     -- player_draw()
     
     for _,c in pairs(ACTOR_LIST) do
         c:draw()
     end
     p1:draw()
+    -- lovr.graphics.setShader(shader)
 
     level_draw()
     CAM:draw()
@@ -267,10 +294,11 @@ function draw_gameplay()
     lovr.graphics.setShader()
     
     if LEVELIX <= 4 then
-        CAM:draw_text("level: "..LEVELIX.."/4    Time: "..math.floor(WORLDTIME).."    STAMINA: "..math.floor(p1.stamina),-0,0.3,.05)
+        CAM:draw_text("level: "..LEVELIX.."/4    Time: "..math.floor(WORLDTIME).."    STAMINA: "..math.floor(p1.stamina),-0.1,0.3,.05)
     else
-        CAM:draw_text("level: "..LEVELIX.."    Time: "..math.floor(WORLDTIME).."      STAMINA: "..math.floor(p1.stamina),-0,0.3,.05)
+        CAM:draw_text("level: "..LEVELIX.."    Time: "..math.floor(WORLDTIME).."      STAMINA: "..math.floor(p1.stamina),-0.1,0.3,.05)
     end
+    -- CAM:draw_bar(p1.stamina)
     -- CAM:draw_text("hi",-0.5,0.2,.15)
     if PAUSE then 
         CAM:draw_text("Paused",0,0.2,.1)

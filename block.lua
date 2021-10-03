@@ -33,6 +33,15 @@ end
 function block:start_fall()
     self.falling=true
     add(BLOCKS_UPDATE,self)
+    snd:play(5)
+    make_cloud(self.x0,self.y1,self.z0,.5*rnd())
+    make_cloud(self.x1,self.y1,self.z0,.5*rnd())
+    make_cloud(self.x0,self.y1,self.z1,.5*rnd())
+    make_cloud(self.x1,self.y1,self.z1,.5*rnd())
+    make_cloud(self.x0+self.dx/2,self.y1,self.z0,.5*rnd())
+    make_cloud(self.x1,self.y1,self.z0+self.dz/2,.5*rnd())
+    make_cloud(self.x0+self.dx/2,self.y1,self.z1,.5*rnd())
+    make_cloud(self.x0,self.y1,self.z0+self.dz/2,.5*rnd())
 end
 
 function block:kill_me()

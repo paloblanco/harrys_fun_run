@@ -20,6 +20,7 @@ actor = thing:new{
     walktimer=0,
     mychunks={},
     walls={}, --wall collisions
+    walldir=-1,
 }
 
 function actor:draw_shadow()
@@ -61,6 +62,7 @@ function actor:collide_with_blocks(blocktable)
     self.onblocks = {}
     self.killblocks = {}
     self.walls = {}
+    self.walldir=-1
     for i,b in pairs(blocktable) do
         if self.dx < 0 then
             if (self.xold - self.size*.5 >= b.x1) and
@@ -74,6 +76,7 @@ function actor:collide_with_blocks(blocktable)
                     self.dx=0
                     -- goto continue
                     add(self.walls,b)
+                    self.walldir=0
                 end
             end
         end
@@ -88,6 +91,7 @@ function actor:collide_with_blocks(blocktable)
                     self.x = b.x0-self.size*0.5
                     self.dx=0
                     add(self.walls,b)
+                    self.walldir=1
                     -- goto continue
                 end
             end
@@ -103,6 +107,7 @@ function actor:collide_with_blocks(blocktable)
                     self.z = b.z0-self.size*0.5
                     self.dz=0
                     add(self.walls,b)
+                    self.walldir=3
                     -- goto continue
                 end
             end
@@ -118,6 +123,7 @@ function actor:collide_with_blocks(blocktable)
                     self.z = b.z1+self.size*0.5
                     self.dz=0
                     add(self.walls,b)
+                    self.walldir=2
                     -- goto continue
                 end
             end

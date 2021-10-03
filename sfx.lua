@@ -6,7 +6,10 @@ sfx = thing:new()
 function sfx:init()
     local file_list = {
         "resources/sfx_0.wav",
-        "resources/sfx_1.wav",
+        "resources/sfx_win.wav",
+        "resources/sfx_steps.wav",
+        "resources/sfx_dead.wav",
+        "resources/sfx_block.wav",
     }
     self.snd_list = {}
     for _,fn in pairs(file_list) do

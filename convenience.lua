@@ -152,3 +152,31 @@ function sign(num)
     elseif num < 0 then return -1
     else return 0 end
 end
+
+function make_cloud(x,y,z,s)
+    add(CLOUDLIST,{
+        x=x,
+        y=y,
+        z=z,
+        s=s,
+        t=0})
+end
+
+function update_clouds(dt)
+    for _,cc in pairs(CLOUDLIST) do
+        cc.y = cc.y + 2*dt
+        cc.t = cc.t+dt
+        if cc.t > .25 then del(CLOUDLIST,cc) end
+    end
+end
+
+function draw_clouds()
+    set_color(6)
+    for _,cc in pairs(CLOUDLIST) do
+        lovr.graphics.sphere(cc.x,cc.y,cc.z,cc.s+cc.t/2)
+        -- lovr.graphics.cube('fill',cc.x,cc.y,cc.z,cc.s+cc.t/2)
+    end
+end
+
+
+        

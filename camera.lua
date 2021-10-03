@@ -98,5 +98,19 @@ function camera:draw_text(text,x,y,size)
     lovr.graphics.origin()
 end
 
+function camera:draw_bar(number)
+    if number < 20 then
+        set_color(8)
+    else
+        set_color(11)
+    end
+    lovr.graphics.transform(self.matrix)
+    local length = .2*(number/100)
+    local mid = length/2
+    lovr.graphics.box('fill',0.3 + mid,.3,-self.guidepth,length,.05,.025)
+    lovr.graphics.origin()
+    lovr.graphics.setColor(1,1,1,1)
+end
+
 
 return camera
