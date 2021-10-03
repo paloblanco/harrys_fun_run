@@ -67,6 +67,7 @@ function input_init()
         if key=='d' then CAMRIGHT = true end
         if key=='return' then ENTER = true end
         if key=='r' then RESTART = true end
+        if key=='j' then JJ = true end
     end
     function lovr.keyreleased(key)
         if key=='right' then RIGHTKEY = false end
@@ -81,9 +82,11 @@ function input_init()
         if key=='d' then CAMRIGHT = false end
         if key=='return' then ENTER = false end
         if key=='r' then RESTART = false end
+        if key=='j' then JJ = false end
     end
     ENTEROLD=false
     RESTARTOLD=false
+    JJOLD = false
 end
 
 function input_process_keyboard(camera_angle)
@@ -95,6 +98,7 @@ function input_process_keyboard(camera_angle)
     local jumpbutton = false
     local pressenter = false
     local pressr = false
+    pressj = false
     
     if UPKEY then
         zval =zval -1 * math.cos(-camera_angle)
@@ -131,8 +135,9 @@ function input_process_keyboard(camera_angle)
     end
     RESTARTOLD=RESTART
 
-
-
+    if JJ and not JJOLD then
+        pressj = true
+    end
     return xval, zval, mag, angle, runbutton, jumpbutton, pressenter, pressr
 end
 

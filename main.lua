@@ -16,7 +16,7 @@ require 'convenience'
 
 -->8 Level
 
-function level_init()
+function make_level_and_place_objects()
     LEVEL_BLOCKS, GOAL, START = make_level()
     make_objects(GOAL, START)
 end
@@ -87,14 +87,18 @@ function init_global_vars()
     WORLDTIME=0
     COINCOUNT=0
     CHUNKDIST=5
-    ACTOR_LIST = {}
     PAUSE = false
+    LOADING=false
     LEVELIX=1
 end
 
 function init_level()
     -- level
-    level_init()
+    ACTOR_LIST={}
+    LOADING=false
+    LEVEL_TIME=0
+    LEVEL_BLOCKS = {}
+    make_level_and_place_objects()
     CAM = camera:new()
     CAM:setup(p1)
     get_chunk = level_chunk_init(CHUNKDIST)
@@ -107,6 +111,13 @@ function init_level()
     lovr.draw = draw_gameplay
 end
 
+function next_level()
+    LEVELIX = LEVELIX + 1
+    LOAD_TIME=0
+    LOADING=true
+    lovr.update = update_loading
+end
+
 function lovr.load()
     init_global_vars()
     input_init()
@@ -117,6 +128,7 @@ end
 
 function update_gameplay(dt)
     level_chunk = get_chunk(p1.x,p1.z)
+    WORLDTIME = WORLDTIME + dt
     
     xval, zval, mag, angle, runbutton, jumpbutton, pressenter, pressr = input_process_keyboard(CAM.angle)
     p1:update(dt, level_chunk[1], level_chunk[2],xval, zval, mag, angle, runbutton, jumpbutton)
@@ -137,6 +149,9 @@ function update_gameplay(dt)
     if pressr then
         lovr.load()
     end
+    if pressj then
+        next_level()
+    end
 end
 
 function update_pause(dt)
@@ -149,6 +164,16 @@ function update_pause(dt)
         lovr.load()
     end
 end
+
+function update_loading(dt)
+    LOAD_TIME = LOAD_TIME + dt
+    xval, zval, mag, angle, runbutton, jumpbutton, pressenter, pressr = input_process_keyboard(CAM.angle)
+    CAM:reset() -- need to still update matrix
+    if LOAD_TIME > 2 then
+        init_level()
+    end
+end
+
 
 
 function draw_gameplay()
@@ -167,13 +192,18 @@ function draw_gameplay()
     -- GUI
     lovr.graphics.setShader()
     
-    -- CAM:draw_text("hi",-0.5,0.3,.05)
+    CAM:draw_text("level: "..LEVELIX,-0.5,0.3,.05)
     -- CAM:draw_text("hi",-0.5,0.2,.15)
     if PAUSE then 
         CAM:draw_text("Paused",0,0.2,.1)
         CAM:draw_text("Press Enter to unpause",0,0.1,.075)
         CAM:draw_text("Press R to reset game",0,0.05,.075)
+    end
 
+    if LOADING then 
+        CAM:draw_text("Good job Jenry!",0,0.2,.1)
+        CAM:draw_text("You beat level "..(LEVELIX-1),0,0.1,.075)
+        CAM:draw_text("Moving on to level "..LEVELIX,0,0.05,.075)
     end
     
     -- debug
