@@ -50,8 +50,8 @@ end
 function camera:update(dt)
     local angt = (p1.angle - 0.5*math.pi) % (math.pi*2)
 
-    if (CAMLEFT) then self.angle = self.angle + 1*dt end
-    if (CAMRIGHT) then self.angle = self.angle - 1*dt end
+    -- if (CAMLEFT) then self.angle = self.angle + 1*dt end
+    -- if (CAMRIGHT) then self.angle = self.angle - 1*dt end
 
     local angt1 = angt-self.angle
     local angbest
@@ -74,7 +74,8 @@ function camera:update(dt)
     else
         damp=1
     end
-    if (not CAMLEFT and not CAMRIGHT) then 
+    -- if (not CAMLEFT and not CAMRIGHT) then 
+    if (true) then 
         self.angle = self.angle + (damp*angbest)*dt 
     end
     self.angle = self.angle % (2*math.pi)

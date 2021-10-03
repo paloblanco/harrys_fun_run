@@ -100,27 +100,27 @@ function input_process_keyboard(camera_angle)
     local pressr = false
     pressj = false
     
-    if UPKEY then
+    if UPKEY or CAMUP then
         zval =zval -1 * math.cos(-camera_angle)
         xval =xval -1 * math.sin(camera_angle)
         mag = 1
-    elseif DOWNKEY then
+    elseif DOWNKEY or CAMDOWN then
         zval =zval+ 1 * math.cos(-camera_angle)
         xval =xval+ 1 * math.sin(camera_angle)
         mag = 1
     end
-    if RIGHTKEY then
+    if RIGHTKEY or CAMRIGHT then
         xval =xval+ 1 * math.cos(-camera_angle)
         zval =zval+ -1 * math.sin(camera_angle)
         mag = 1
-    elseif LEFTKEY then
+    elseif LEFTKEY or CAMLEFT then
         xval =xval+ -1 * math.cos(-camera_angle)
         zval =zval+ 1 * math.sin(camera_angle)
         mag = 1
     end
 
     if XKEY then runbutton = true end
-    if ZKEY then jumpbutton= true end
+    if ZKEY or JJ then jumpbutton= true end
 
     angle = math.atan2(-zval,xval)
 
@@ -135,9 +135,9 @@ function input_process_keyboard(camera_angle)
     end
     RESTARTOLD=RESTART
 
-    if JJ and not JJOLD then
-        pressj = true
-    end
+    -- if JJ and not JJOLD then
+    --     pressj = true
+    -- end
     return xval, zval, mag, angle, runbutton, jumpbutton, pressenter, pressr
 end
 
@@ -173,7 +173,7 @@ end
 function draw_clouds()
     set_color(6)
     for _,cc in pairs(CLOUDLIST) do
-        lovr.graphics.sphere(cc.x,cc.y,cc.z,cc.s+cc.t/2)
+        -- lovr.graphics.sphere(cc.x,cc.y,cc.z,cc.s+cc.t/2)
         -- lovr.graphics.cube('fill',cc.x,cc.y,cc.z,cc.s+cc.t/2)
     end
 end

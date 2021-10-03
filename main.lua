@@ -311,11 +311,11 @@ function draw_gameplay()
         CAM:draw_text("Total Deaths: "..DEATHCOUNT,0,.1,.055)
         CAM:draw_text("Thanks for playing!!",-0.25,-0.05,.075)
         CAM:draw_text("--Rocco, aka Palo Blanco",0.25,-0.1,.055)
-        if LOAD_TIME > 1 then CAM:draw_text("Press Z to keep playing endless mode!",0,-0.2,.075) end
+        if LOAD_TIME > 1 then CAM:draw_text("Press Z or J to keep playing endless mode!",0,-0.2,.075) end
     elseif DEAD then
         CAM:draw_text("Oh no, Jenry!",0,0.2,.1)
         CAM:draw_text("try again...",0,-0.05,.075)
-        if LOAD_TIME > .5 then CAM:draw_text("Press Z to try this level again",0,-0.1,.075) end
+        if LOAD_TIME > .5 then CAM:draw_text("Press Z or J to try this level again",0,-0.1,.075) end
     elseif LOADING then 
         CAM:draw_text("Good job Jenry!",0,0.2,.1)
         CAM:draw_text("You beat level "..(LEVELIX-1),0,0.1,.075)
@@ -325,13 +325,13 @@ function draw_gameplay()
     if STARTING then
         CAM:draw_text("Jenry Javelina!",0,0.2,.1)
         CAM:draw_text("Made by Palo Blanco for LD49",0,-0.05,.075)
-        if LOAD_TIME > .5 then CAM:draw_text("Press Z to start",0,-0.1,.075) end
+        if LOAD_TIME > .5 then CAM:draw_text("Press Z or J to start",0,-0.1,.075) end
     end
     
     if GAMEOVER then
         CAM:draw_text("Oh no, Jenry!",0,0.2,.1)
         CAM:draw_text("Thanks for playing!",0,-0.05,.075)
-        if LOAD_TIME > .5 then CAM:draw_text("Press Z to restart",0,-0.1,.075) end
+        if LOAD_TIME > .5 then CAM:draw_text("Press Z or J to restart",0,-0.1,.075) end
     end
     -- debug
     PRINTLINES = 0
