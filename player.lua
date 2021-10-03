@@ -81,13 +81,13 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
             self.dz = self.dz*.5
             self.dy = math.max(self.dy,-3*dt)
             for _,b in pairs(self.walls) do
-                if not b.falling then b:start_fall() end
+                if ((not b.falling) and (b.canfall)) then b:start_fall() end
             end
         end
     end
 
     for _,b in pairs(self.killblocks) do
-        if not b.falling then b:start_fall() end
+        if ((not b.falling) and (b.canfall)) then b:start_fall() end
     end
 
 

@@ -51,9 +51,9 @@ function block:update(dt)
     end
 end
 
-function make_new_block(x0,y0,z0,x1,y1,z1,c,canfall)
+function make_new_block(x0,y0,z0,x1,y1,z1,c,can_i_fall)
     c = c or 3
-    canfall = canfall or true
+    can_i_fall = can_i_fall or true
     local b = block:new{
         x0=x0,
         y0=y0,
@@ -62,7 +62,7 @@ function make_new_block(x0,y0,z0,x1,y1,z1,c,canfall)
         y1=y1,
         z1=z1,
         color=c,
-        canfall=canfall
+        canfall=can_i_fall
     }
     return b
 end

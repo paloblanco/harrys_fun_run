@@ -23,6 +23,7 @@ function make_level()
                                     7,false)
 
     add(level,endblock)
+    endblock.canfall = false
 
     local goal =  {
         x=(endblock.x1+endblock.x0)/2,
@@ -57,13 +58,14 @@ function make_level()
     local start = {}
     start.x0 = params.xmin + 4
     start.x1 = params.xmax - 4
-    start.z1 = params.zmax + 4
+    start.z1 = params.zmax + 6
     start.z0 = params.zmax + 1
     start.y0 = -10
     start.y1 = 0.5
     local thisblock = make_new_block(start.x0,start.y0,start.z0,
                                     start.x1,start.y1,start.z1,3,false)
     add(level,thisblock)
+    thisblock.canfall = false
 
     return level, goal, start
 end
