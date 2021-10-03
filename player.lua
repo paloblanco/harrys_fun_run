@@ -174,7 +174,7 @@ function player:draw()
         if self.stamina < 20 then
             set_color(8)
         else
-            set_color(11)
+            set_color(16)
         end
         local length = 1*(self.stamina/100)
         local mid = length/2

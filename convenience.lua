@@ -16,6 +16,7 @@ color_table = {
     0x83769c,-- 13 indigo
     0xff77a8,-- 14 pink
     0xffccaa,-- 15 peach
+    0x00f0b6,-- 16 bluegreen
 }
 function set_color(ix)
 
