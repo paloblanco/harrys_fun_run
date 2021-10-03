@@ -174,7 +174,7 @@ end
 function draw_clouds()
     set_color(6)
     for _,cc in pairs(CLOUDLIST) do
-        -- lovr.graphics.sphere(cc.x,cc.y,cc.z,cc.s+cc.t/2)
+        lovr.graphics.sphere(cc.x,cc.y,cc.z,cc.s+cc.t/2)
         -- lovr.graphics.cube('fill',cc.x,cc.y,cc.z,cc.s+cc.t/2)
     end
 end
