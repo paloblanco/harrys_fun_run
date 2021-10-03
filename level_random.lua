@@ -61,7 +61,10 @@ function make_level(ix)
     start.z1 = params.zmax + 6
     start.z0 = params.zmax + 1
     start.y0 = -10
-    start.y1 = 3.5
+    local distfromgoal = math.abs(goal.x-0) + math.abs(goal.z-params.zmax)
+    local yh = params.ymax*(1-distfromgoal/params.maxd) - 2 + rnd(4)
+    yh = math.max(yh,1)+1
+    start.y1 = yh
     local thisblock = make_new_block(start.x0,start.y0,start.z0,
                                     start.x1,start.y1,start.z1,3,false)
     add(level,thisblock)

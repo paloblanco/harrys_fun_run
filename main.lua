@@ -138,6 +138,7 @@ function game_start()
 end
 
 function jenry_died()
+    DEATHCOUNT = DEATHCOUNT+1
     if LEVELIX <= 4 then
         DEAD = true
         LOADING = true
@@ -184,7 +185,7 @@ function update_gameplay(dt)
     level_update(dt)
     CAM:update(dt)
 
-    WORLDTIME = WORLDTIME + dt
+    WORLDTIME = WORLDTIME + dt/2
 
     if pressenter then
         pause_game()
@@ -251,6 +252,7 @@ end
 function draw_gameplay()
     lovr.graphics.setShader(shader)
     lovr.graphics.setBackgroundColor(color_table[13])
+    -- lovr.graphics.skybox(skybox)
     -- player_draw()
     
     for _,c in pairs(ACTOR_LIST) do
@@ -278,6 +280,7 @@ function draw_gameplay()
 
     if GAMEWIN then
         CAM:draw_text("You beat the game, Jenry!",0,0.2,.1)
+        CAM:draw_text("Total Deaths: "..DEATHCOUNT,0,.1,.055)
         CAM:draw_text("Thanks for playing!!",-0.25,-0.05,.075)
         CAM:draw_text("--Rocco, aka Palo Blanco",0.25,-0.1,.055)
         if LOAD_TIME > 1 then CAM:draw_text("Press Z to keep playing endless mode!",0,-0.2,.075) end
