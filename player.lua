@@ -22,6 +22,7 @@ player = actor:new{
     stamina = 100,
     walktimerold=0,
     walldir=-1,
+    dt0=0,
 }
 
 function player:init()
@@ -65,7 +66,7 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
     end
 
     if (jumpbutton and self.canjump) then
-        self.dy = 7.5*(1/60) -- can't use time elapsed here
+        self.dy = 7.5*(1/60)*.25 -- can't use time elapsed here
         -- self.dy = 7*dt
         self.grounded = false
         self.canjump=false
@@ -73,10 +74,10 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
         make_cloud(self.x+.5,self.y,self.z,0.1)
         make_cloud(self.x-.5,self.y,self.z,0.1)
         make_cloud(self.x,self.y,self.z+.5,0.1)
-        make_cloud(self.x,self.y,self.z-.5,0.1)
+        make_cloud(self.x,self.y,self.z- .5,0.1)
     elseif (jumpbutton and self.canwalljump) then
         if self.stamina > 20 then
-            self.dy = 5.5*(1/60) -- can't use time elapsed here
+            self.dy = 5.5*(1/60)*.25 -- can't use time elapsed here
             -- self.dy = 5*dt
             for _,b in pairs(self.walls) do
                 if ((not b.falling) and (b.canfall)) then b:start_fall() end
@@ -119,8 +120,16 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
     self.x = self.x + self.dx
     
     self.grounded=false
-    self.dy = self.dy - .3*dt
-    self.y = self.y + self.dy
+    -- gravity calc
+    self.dt0 = dt+self.dt0
+    while self.dt0 >= (1/240) do
+        self.dy = self.dy - .3*.25*(1/240)
+        self.y = self.y + self.dy
+        self.dt0 = self.dt0 - (1/240)
+    end
+    -- self.dy = self.dy - .3*self.dt0
+    -- self.y = self.y + self.dy
+    -- self.dt0=0
 
     self.stamina = math.min(self.stamina + 30*dt,100)
 

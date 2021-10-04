@@ -10,7 +10,8 @@ block = thing:new{
     color=3,
     falling = false,
     vely=0,
-    canfall=true
+    canfall=true,
+    dt0=0
 }
 
 function block:init()
@@ -50,7 +51,14 @@ function block:kill_me()
 end
 
 function block:update(dt)
-    self.vely = self.vely + -0.015*dt
+    self.dt0 = dt + self.dt0
+    local ydif = 0
+    while self.dt0 > (1/240) do
+        -- self.vely = self.vely + -0.015*dt
+        ydif = ydif + -0.015*dt*.25
+        self.dt0 = self.dt0 - (1/240)
+    end
+    self.vely = self.vely + ydif
     self.y0 = self.y0 + self.vely
     self.y1 = self.y1 + self.vely
     self.ymid0 = self.ymid0 + self.vely
