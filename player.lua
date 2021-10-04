@@ -65,7 +65,8 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
     end
 
     if (jumpbutton and self.canjump) then
-        self.dy = 7*(1/60) -- can't use time elapsed here
+        self.dy = 7.5*(1/60) -- can't use time elapsed here
+        -- self.dy = 7*dt
         self.grounded = false
         self.canjump=false
         snd:play(1)
@@ -75,7 +76,8 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
         make_cloud(self.x,self.y,self.z-.5,0.1)
     elseif (jumpbutton and self.canwalljump) then
         if self.stamina > 20 then
-            self.dy = 5*(1/60) -- can't use time elapsed here
+            self.dy = 5.5*(1/60) -- can't use time elapsed here
+            -- self.dy = 5*dt
             for _,b in pairs(self.walls) do
                 if ((not b.falling) and (b.canfall)) then b:start_fall() end
             end
