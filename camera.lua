@@ -50,8 +50,8 @@ end
 function camera:update(dt)
     local angt = (p1.angle - 0.5*math.pi) % (math.pi*2)
 
-    if (CAMLEFT) then self.angle = self.angle + 1*dt end
-    if (CAMRIGHT) then self.angle = self.angle - 1*dt end
+    -- if (CAMLEFT) then self.angle = self.angle + 1*dt end
+    -- if (CAMRIGHT) then self.angle = self.angle - 1*dt end
 
     local angt1 = angt-self.angle
     local angbest
@@ -74,7 +74,8 @@ function camera:update(dt)
     else
         damp=1
     end
-    if (not CAMLEFT and not CAMRIGHT) then 
+    -- if (not CAMLEFT and not CAMRIGHT) then 
+    if (true) then 
         self.angle = self.angle + (damp*angbest)*dt 
     end
     self.angle = self.angle % (2*math.pi)
@@ -96,6 +97,20 @@ function camera:draw_text(text,x,y,size)
     
     lovr.graphics.print(text,x,y,-self.guidepth,size,0,0,1,0)
     lovr.graphics.origin()
+end
+
+function camera:draw_bar(number)
+    if number < 20 then
+        set_color(8)
+    else
+        set_color(11)
+    end
+    lovr.graphics.transform(self.matrix)
+    local length = .2*(number/100)
+    local mid = length/2
+    lovr.graphics.box('fill',0.3 + mid,.3,-self.guidepth,length,.05,.025)
+    lovr.graphics.origin()
+    lovr.graphics.setColor(1,1,1,1)
 end
 
 

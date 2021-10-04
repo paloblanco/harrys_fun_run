@@ -8,6 +8,7 @@ block = require 'block'
 camera = require 'camera'
 require 'level_random'
 sfx = require 'sfx'
+music = require 'music'
 require 'convenience'
 
 
@@ -17,20 +18,26 @@ require 'convenience'
 -->8 Level
 
 function make_level_and_place_objects()
-    LEVEL_BLOCKS, GOAL, START = make_level()
+    LEVEL_BLOCKS, GOAL, START = make_level(LEVELIX)
     make_objects(GOAL, START)
+    BLOCKS_UPDATE = {}
+    CLOUDLIST = {}
 end
 
 function level_update(dt)
+    for _,b in pairs(BLOCKS_UPDATE) do
+        b:update(dt)
+    end
+    update_clouds(dt)
 end
 
 function level_draw()
     for i,b in pairs(LEVEL_BLOCKS) do
-        set_color(b.color)
-        lovr.graphics.box('fill',b.xmid,b.ymid,b.zmid,b.dx,b.dy,b.dz,0,0,1,0)
-        lovr.graphics.setColor(1,1,1,1)
-        lovr.graphics.box('line',b.xmid,b.ymid,b.zmid,b.dx,b.dy,b.dz,0,0,1,0)
+        b:draw()
     end
+    set_color(6)
+    lovr.graphics.sphere(0,-4006,0,4000)
+    draw_clouds()
 end
 
 function level_chunk_init(chunkdist)
@@ -46,14 +53,18 @@ function level_chunk_init(chunkdist)
         maxx = math.max(maxx,b.x1)
         maxz = math.max(maxz,b.z1)
     end
+    minx = math.floor(minx - 2)
+    maxx = math.floor(maxx + 2)
+    minz = math.floor(minz - 2)
+    maxz = math.floor(maxz + 2)
     chunktable={}
     for xx = minx,maxx+1,chunkdist do
         local chunkcol={}
         for zz = minz,maxz+1,chunkdist do
-            local xx0=xx-1
-            local xx1=xx+chunkdist+1
-            local zz0=zz-1
-            local zz1=zz+1+chunkdist
+            local xx0=xx-2
+            local xx1=xx+chunkdist+2
+            local zz0=zz-2
+            local zz1=zz+2+chunkdist
             local chunk={}
             local chunk_act={}
             for _,b in pairs(LEVEL_BLOCKS) do
@@ -92,7 +103,17 @@ function init_global_vars()
     STARTING=false
     GAMEOVER=false
     GAMEWIN=false
+    DEAD=false
     LEVELIX=1
+    DEATHCOUNT=0
+    SB = lovr.graphics.newTexture({
+        left = 'resources/p1.png',
+        right = 'resources/p1.png',
+        top = 'resources/pup.png',
+        bottom = 'resources/pdown.png',
+        front = 'resources/p1.png',
+        back = 'resources/p1.png',
+      })
 end
 
 function init_level()
@@ -102,6 +123,7 @@ function init_level()
     LEVEL_TIME=0
     LEVEL_BLOCKS = {}
     make_level_and_place_objects()
+    mus:play(2)
     CAM = camera:new()
     CAM:setup(p1)
     get_chunk = level_chunk_init(CHUNKDIST)
@@ -119,17 +141,36 @@ function next_level()
     if LEVELIX == 5 then GAMEWIN = true end
     LOAD_TIME=0
     LOADING=true
+    -- mus:stop()
+    snd:play(2)
     lovr.update = update_loading
 end
 
 function game_start()
     STARTING=true
     LOAD_TIME = 0
+    mus:stop()
+    mus:play(1)
     lovr.update = update_start
+end
+
+function jenry_died()
+    DEATHCOUNT = DEATHCOUNT+1
+    snd:play(4)
+    mus:stop()
+    if LEVELIX <= 4 then
+        DEAD = true
+        LOADING = true
+        LOAD_TIME = 0
+        lovr.update = update_loading
+    else
+        game_over()
+    end
 end
 
 function game_over()
     GAMEOVER = true
+    mus:stop()
     LOAD_TIME = 0
     lovr.update = update_gameover
 end
@@ -137,6 +178,7 @@ end
 function game_win()
     GAMEWIN = true
     LOAD_TIME = 0
+    mus:stop()
     lovr.update = update_gamewin
 end
 
@@ -144,6 +186,7 @@ function lovr.load()
     init_global_vars()
     input_init()
     snd = sfx:new()
+    mus = music:new()
     -- p1 = player:new()  
     init_level() 
     game_start()
@@ -164,19 +207,20 @@ function update_gameplay(dt)
     level_update(dt)
     CAM:update(dt)
 
-    WORLDTIME = WORLDTIME + dt
+    WORLDTIME = WORLDTIME + dt/2
 
     if pressenter then
         pause_game()
     end
     if pressr then
+        mus:stop()
         lovr.load()
     end
     if pressj then
         next_level()
     end
     if p1.y < -10 then
-        game_over()
+        jenry_died()
     end
 end
 
@@ -187,6 +231,7 @@ function update_pause(dt)
         unpause_game()
     end
     if pressr then
+        mus:stop()
         lovr.load()
     end
 end
@@ -195,7 +240,12 @@ function update_loading(dt)
     LOAD_TIME = LOAD_TIME + dt
     xval, zval, mag, angle, runbutton, jumpbutton, pressenter, pressr = input_process_keyboard(CAM.angle)
     CAM:reset() -- need to still update matrix
-    if LOAD_TIME > 2 and not GAMEWIN then
+    if DEAD then
+        if LOAD_TIME > 1 and jumpbutton then
+            init_level()
+            DEAD = false
+        end
+    elseif LOAD_TIME > 2 and not GAMEWIN then
         init_level()
     end
     if LOAD_TIME > 1 and GAMEWIN and jumpbutton then
@@ -211,6 +261,7 @@ function update_start(dt)
     if jumpbutton and LOAD_TIME > .5 then
         lovr.update = update_gameplay
         STARTING=false
+        mus:play(2)
     end
 end
 
@@ -224,14 +275,17 @@ function update_gameover(dt)
 end
 
 function draw_gameplay()
+    lovr.graphics.setShader()
+    -- lovr.graphics.setBackgroundColor(color_table[13])
+    lovr.graphics.skybox(SB)
     lovr.graphics.setShader(shader)
-    lovr.graphics.setBackgroundColor(color_table[13])
     -- player_draw()
     
     for _,c in pairs(ACTOR_LIST) do
         c:draw()
     end
     p1:draw()
+    -- lovr.graphics.setShader(shader)
 
     level_draw()
     CAM:draw()
@@ -239,7 +293,12 @@ function draw_gameplay()
     -- GUI
     lovr.graphics.setShader()
     
-    CAM:draw_text("level: "..LEVELIX,-0.5,0.3,.05)
+    if LEVELIX <= 4 then
+        CAM:draw_text("level: "..LEVELIX.."/4    Time: "..math.floor(WORLDTIME).."    STAMINA: "..math.floor(p1.stamina),-0.1,0.3,.05)
+    else
+        CAM:draw_text("level: "..LEVELIX.."    Time: "..math.floor(WORLDTIME).."      STAMINA: "..math.floor(p1.stamina),-0.1,0.3,.05)
+    end
+    -- CAM:draw_bar(p1.stamina)
     -- CAM:draw_text("hi",-0.5,0.2,.15)
     if PAUSE then 
         CAM:draw_text("Paused",0,0.2,.1)
@@ -249,9 +308,14 @@ function draw_gameplay()
 
     if GAMEWIN then
         CAM:draw_text("You beat the game, Jenry!",0,0.2,.1)
+        CAM:draw_text("Total Deaths: "..DEATHCOUNT,0,.1,.055)
         CAM:draw_text("Thanks for playing!!",-0.25,-0.05,.075)
         CAM:draw_text("--Rocco, aka Palo Blanco",0.25,-0.1,.055)
-        if LOAD_TIME > 1 then CAM:draw_text("Press Z to keep playing endless mode!",0,-0.2,.075) end
+        if LOAD_TIME > 1 then CAM:draw_text("Press Z or J to keep playing endless mode!",0,-0.2,.075) end
+    elseif DEAD then
+        CAM:draw_text("Oh no, Jenry!",0,0.2,.1)
+        CAM:draw_text("try again...",0,-0.05,.075)
+        if LOAD_TIME > .5 then CAM:draw_text("Press Z or J to try this level again",0,-0.1,.075) end
     elseif LOADING then 
         CAM:draw_text("Good job Jenry!",0,0.2,.1)
         CAM:draw_text("You beat level "..(LEVELIX-1),0,0.1,.075)
@@ -261,13 +325,13 @@ function draw_gameplay()
     if STARTING then
         CAM:draw_text("Jenry Javelina!",0,0.2,.1)
         CAM:draw_text("Made by Palo Blanco for LD49",0,-0.05,.075)
-        if LOAD_TIME > .5 then CAM:draw_text("Press Z to start",0,-0.1,.075) end
+        if LOAD_TIME > .5 then CAM:draw_text("Press Z or J to start",0,-0.1,.075) end
     end
     
     if GAMEOVER then
         CAM:draw_text("Oh no, Jenry!",0,0.2,.1)
         CAM:draw_text("Thanks for playing!",0,-0.05,.075)
-        if LOAD_TIME > .5 then CAM:draw_text("Press Z to restart",0,-0.1,.075) end
+        if LOAD_TIME > .5 then CAM:draw_text("Press Z or J to restart",0,-0.1,.075) end
     end
     -- debug
     PRINTLINES = 0

@@ -16,6 +16,7 @@ color_table = {
     0x83769c,-- 13 indigo
     0xff77a8,-- 14 pink
     0xffccaa,-- 15 peach
+    0x00f0b6,-- 16 bluegreen
 }
 function set_color(ix)
 
@@ -100,27 +101,27 @@ function input_process_keyboard(camera_angle)
     local pressr = false
     pressj = false
     
-    if UPKEY then
+    if UPKEY or CAMUP then
         zval =zval -1 * math.cos(-camera_angle)
         xval =xval -1 * math.sin(camera_angle)
         mag = 1
-    elseif DOWNKEY then
+    elseif DOWNKEY or CAMDOWN then
         zval =zval+ 1 * math.cos(-camera_angle)
         xval =xval+ 1 * math.sin(camera_angle)
         mag = 1
     end
-    if RIGHTKEY then
+    if RIGHTKEY or CAMRIGHT then
         xval =xval+ 1 * math.cos(-camera_angle)
         zval =zval+ -1 * math.sin(camera_angle)
         mag = 1
-    elseif LEFTKEY then
+    elseif LEFTKEY or CAMLEFT then
         xval =xval+ -1 * math.cos(-camera_angle)
         zval =zval+ 1 * math.sin(camera_angle)
         mag = 1
     end
 
     if XKEY then runbutton = true end
-    if ZKEY then jumpbutton= true end
+    if ZKEY or JJ then jumpbutton= true end
 
     angle = math.atan2(-zval,xval)
 
@@ -135,9 +136,9 @@ function input_process_keyboard(camera_angle)
     end
     RESTARTOLD=RESTART
 
-    if JJ and not JJOLD then
-        pressj = true
-    end
+    -- if JJ and not JJOLD then
+    --     pressj = true
+    -- end
     return xval, zval, mag, angle, runbutton, jumpbutton, pressenter, pressr
 end
 
@@ -152,3 +153,31 @@ function sign(num)
     elseif num < 0 then return -1
     else return 0 end
 end
+
+function make_cloud(x,y,z,s)
+    add(CLOUDLIST,{
+        x=x,
+        y=y,
+        z=z,
+        s=s,
+        t=0})
+end
+
+function update_clouds(dt)
+    for _,cc in pairs(CLOUDLIST) do
+        cc.y = cc.y + 2*dt
+        cc.t = cc.t+dt
+        if cc.t > .25 then del(CLOUDLIST,cc) end
+    end
+end
+
+function draw_clouds()
+    set_color(6)
+    for _,cc in pairs(CLOUDLIST) do
+        lovr.graphics.sphere(cc.x,cc.y,cc.z,cc.s+cc.t/2)
+        -- lovr.graphics.cube('fill',cc.x,cc.y,cc.z,cc.s+cc.t/2)
+    end
+end
+
+
+        

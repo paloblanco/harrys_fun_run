@@ -9,7 +9,7 @@ player = actor:new{
     xold=0,
     yold=1.5,
     zold=9,
-    angle=0,
+    angle=math.pi/2,
     dx=0,
     dy=0,
     dz=0,
@@ -19,6 +19,9 @@ player = actor:new{
     onblocks={}, -- table of all the blocks that your y axis is on top of
     canjump=false,
     canwalljump=false,
+    stamina = 100,
+    walktimerold=0,
+    walldir=-1,
 }
 
 function player:init()
@@ -46,9 +49,15 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
     self.dx = self.speed*xval
 
     if (mag > 0) then
-        if self.grounded then 
-            self.walktimer = (self.walktimer + dt)%1 
-            if runbutton then self.walktimer = (self.walktimer + .5*dt)%1 end
+        -- if self.grounded then 
+        if self.canjump then 
+            self.walktimer = (self.walktimer + 1.5*dt )%1 
+            -- if runbutton then self.walktimer = (self.walktimer + .5*dt)%1 end
+            if self.walktimerold%.125 < .0625 and self.walktimer%.125 > .0625 then
+                make_cloud(self.x,self.y,self.z,0.1)
+                snd:play(3)
+            end
+            self.walktimerold = self.walktimer
         end
         self.angle = angle % (math.pi*2)
     else
@@ -60,17 +69,32 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
         self.grounded = false
         self.canjump=false
         snd:play(1)
+        make_cloud(self.x+.5,self.y,self.z,0.1)
+        make_cloud(self.x-.5,self.y,self.z,0.1)
+        make_cloud(self.x,self.y,self.z+.5,0.1)
+        make_cloud(self.x,self.y,self.z-.5,0.1)
     elseif (jumpbutton and self.canwalljump) then
-        self.dy = 5*(1/60) -- can't use time elapsed here
-        self.grounded = false
-        self.canwalljump=false
-        snd:play(1)
+        if self.stamina > 20 then
+            self.dy = 5*(1/60) -- can't use time elapsed here
+            for _,b in pairs(self.walls) do
+                if ((not b.falling) and (b.canfall)) then b:start_fall() end
+            end
+            self.grounded = false
+            self.canwalljump=false
+            snd:play(1)
+            make_cloud(self.x+.5,self.y+.5,self.z,0.1)
+            make_cloud(self.x-.5,self.y+.5,self.z,0.1)
+            make_cloud(self.x,self.y+.5,self.z+.5,0.1)
+            make_cloud(self.x,self.y+.5,self.z-.5,0.1)
+            self.stamina = math.max(self.stamina - 30, 0)
+        else
+        end
     end
 
     self.canwalljump = false
 
     if not self.grounded then
-        self.walktimer = .25
+        if not self.canjump then self.walktimer = .25 end
         if self.canjump==true then
             if self.dy < -.3*.25 then self.canjump = false end
         end
@@ -79,7 +103,12 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
             self.dx = self.dx*.5
             self.dz = self.dz*.5
             self.dy = math.max(self.dy,-3*dt)
+            if math.floor((self.y*10)%3) == 0 then make_cloud(self.x,self.y+.5,self.z,0.1) end
         end
+    end
+
+    for _,b in pairs(self.killblocks) do
+        if ((not b.falling) and (b.canfall)) then b:start_fall() end
     end
 
 
@@ -91,17 +120,28 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
     self.dy = self.dy - .3*dt
     self.y = self.y + self.dy
 
+    self.stamina = math.min(self.stamina + 30*dt,100)
+
     --collide!
     self:collide_with_blocks(blocks)
     self:bump_others(others)
 end
 
-
 function player:draw()
     --set transforms
     -- set_color()
     lovr.graphics.translate(self.x,self.y,self.z)
-    lovr.graphics.rotate(self.angle,0,1,0)
+    angler = self.angle
+    armsup=0
+    if self.walldir > -1 then
+        if self.walldir == 0 then angler = math.pi
+        elseif self.walldir == 1 then angler = 0
+        elseif self.walldir == 2 then angler = math.pi/2
+        elseif self.walldir == 3 then angler = -math.pi/2
+        end
+        armsup=0.1
+    end
+    lovr.graphics.rotate(angler,0,1,0)
     
     --body and mouth
     lovr.graphics.setColor(1,1,1,1)
@@ -118,15 +158,32 @@ function player:draw()
                 .1,0,0,1,0)
     
     --arms
-    lovr.graphics.cube('fill',0+.3*0,0+.45+.05*math.sin(self.walktimer*12*math.pi),
+    lovr.graphics.cube('fill',0+.3*0,0+.45+.05*math.sin(self.walktimer*12*math.pi) + armsup,
                 0+.3,.1,0,0,1,0)
-    lovr.graphics.cube('fill',0-.3*0,0+.45+.05*math.sin(self.walktimer*12*math.pi),
+    lovr.graphics.cube('fill',0-.3*0,0+.45+.05*math.sin(self.walktimer*12*math.pi) + armsup,
                 0-.3,.1,0,0,1,0)
 
     --shadow
     -- lovr.graphics.pop()
     lovr.graphics.origin()
     self:draw_shadow()
+
+    --bar
+    if self.stamina < 100 then
+        -- lovr.graphics.setShader()
+        if self.stamina < 20 then
+            set_color(8)
+        else
+            set_color(16)
+        end
+        local length = 1*(self.stamina/100)
+        local mid = length/2
+        lovr.graphics.translate(self.x,self.y,self.z)
+        lovr.graphics.box('fill',0,1,0,length,.2,.2,CAM.angle,0,1,0)
+        lovr.graphics.origin()
+        lovr.graphics.setColor(1,1,1,1)
+        -- lovr.graphics.setShader(shader)
+    end
 end
 
 return player
