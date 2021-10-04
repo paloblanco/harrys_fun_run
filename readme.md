@@ -1,7 +1,9 @@
-# Harry's Fun Run
+# Jenry Javelina!
 ## A simple 3D platformer made in LÖVR
 
-This is a test game for the 3D framework LÖVR. It is currently still under development.
+This was made for Ludum Dare 49, October 2021. It is a branch of the 3d platformer framework I am working on for LOVR.
+
+If you just want to play, check it out on itch: https://paloblancogames.itch.io/jenryjavelina
 
 ## How to run
 This is targeted at Windows users.
