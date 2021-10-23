@@ -26,14 +26,28 @@ customVertex = [[
     }
 ]]
 
+-- customFragment = [[
+--     vec4 color(vec4 graphicsColor, sampler2D image, vec2 uv) 
+--     {
+--         return graphicsColor * lovrDiffuseColor * vertexColor * texture(image, uv);
+--         }
+-- ]]
+
 customFragment = [[
+    uniform vec4 ambience;
     vec4 color(vec4 graphicsColor, sampler2D image, vec2 uv) 
     {
-        return graphicsColor * lovrDiffuseColor * vertexColor * texture(image, uv);
-        }
+        //object color
+        vec4 baseColor = graphicsColor * texture(image, uv);
+        return baseColor * ambience;
+    }
 ]]
 
 shader = lovr.graphics.newShader(customVertex, customFragment, {})
+
+shader:send('ambience', { 0.2, 0.2, 0.2, 1.0 })
+
+
 
 return shader
 

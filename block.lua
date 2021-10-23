@@ -28,7 +28,7 @@ function block:draw()
     set_color(self.color)
     lovr.graphics.box('fill',self.xmid,self.ymid,self.zmid,self.dx,self.dy,self.dz,0,0,1,0)
     lovr.graphics.setColor(1,1,1,1)
-    lovr.graphics.box('line',self.xmid,self.ymid,self.zmid,self.dx,self.dy,self.dz,0,0,1,0)
+    -- lovr.graphics.box('line',self.xmid,self.ymid,self.zmid,self.dx,self.dy,self.dz,0,0,1,0)
 end
 
 function block:start_fall()
