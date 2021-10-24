@@ -36,6 +36,7 @@ end
 function flag:init()
     self:collide_with_blocks(LEVEL_BLOCKS)
     self.model = lovr.graphics.newModel('resources/cactus.obj')
+
 end
 
 function flag:draw()

@@ -51,10 +51,12 @@ Game Descrition:
     - snd effects
     
 
-### Extra
+### Extra!
 - cool skybox
-- collectibles
-- enemies that stun you
+- more sounds
 - level music
 - beter shaders
+
+*- collectibles*
+*- enemies that stun you*
 

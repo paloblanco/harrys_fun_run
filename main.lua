@@ -335,10 +335,6 @@ function draw_gameplay()
     end
     -- debug
     PRINTLINES = 0
-
-    -- print_gui("col: "..col,CAM.angle)
-    -- print_gui("row: "..row,CAM.angle)
-    -- lovr.graphics.setShader()
 end
 
 function pause_game()

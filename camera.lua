@@ -43,7 +43,8 @@ function camera:reset()
     local camme = lovr.math.mat4()
     camme:target(camfrom,camto,camup)
     lovr.graphics.setViewPose(1,cammat,true)
-    shader:send('lovrLightDirection', camto - camfrom )
+    -- shader:send('lovrLightDirection', camto - camfrom )
+    shader:send('lightPos', {self.x,self.y,self.z})
     self.matrix = camme
 end
 
