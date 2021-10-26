@@ -138,11 +138,11 @@ function player:update(dt,blocks,others,xval, zval, mag, angle, runbutton, jumpb
     self:bump_others(others)
 end
 
-
+da=0
 function player:draw()
     --set transforms
     -- set_color()
-    -- lovr.graphics.translate(self.x,self.y,self.z)
+    lovr.graphics.translate(self.x,self.y,self.z)
     angler = self.angle
     armsup=0
     if self.walldir > -1 then
@@ -153,34 +153,29 @@ function player:draw()
         end
         armsup=0.1
     end
-    -- lovr.graphics.rotate(angler,0,1,0)
+    lovr.graphics.rotate(angler,0,1,0)
     
+    da = da + .01
+
     --body and mouth
     lovr.graphics.setColor(1,1,1,1)
-    lovr.graphics.cube('fill',
-                        self.x,
-                        0.45+.04*math.sin(self.walktimer*12*math.pi) + self.y,
-                        self.z,
-                        1,
-                        0,0,1,0)
-
-    -- self.model:draw(0,0.45+.04*math.sin(self.walktimer*12*math.pi),0,.75*1.25,0,0,1,0,1)
-    -- --legs
-    -- set_color(7)
-    -- lovr.graphics.cube('fill',0.1*0 + .2*math.sin(self.walktimer*6*math.pi)*1,
-    --             0.05 + .1*math.abs(math.sin(self.walktimer*6*math.pi)),
-    --             0.1*1,
-    --             .1,0,0,1,0)
-    -- lovr.graphics.cube('fill',0-.1*0 + .2*math.sin(-self.walktimer*6*math.pi)*1,
-    --             0+.05+ .1*math.abs(math.sin(self.walktimer*6*math.pi)),
-    --             0-.1*1,
-    --             .1,0,0,1,0)
+    self.model:draw(0,0.45+.04*math.sin(self.walktimer*12*math.pi),0,.75*1.25,0,0,1,0,1)
+    --legs
+    set_color(7)
+    lovr.graphics.cube('fill',0.1*0 + .2*math.sin(self.walktimer*6*math.pi)*1,
+                0.05 + .1*math.abs(math.sin(self.walktimer*6*math.pi)),
+                0.1*1,
+                .1,0,0,1,0)
+    lovr.graphics.cube('fill',0-.1*0 + .2*math.sin(-self.walktimer*6*math.pi)*1,
+                0+.05+ .1*math.abs(math.sin(self.walktimer*6*math.pi)),
+                0-.1*1,
+                .1,0,0,1,0)
     
-    -- --arms
-    -- lovr.graphics.cube('fill',0+.3*0,0+.45+.05*math.sin(self.walktimer*12*math.pi) + armsup,
-    --             0+.3,.1,0,0,1,0)
-    -- lovr.graphics.cube('fill',0-.3*0,0+.45+.05*math.sin(self.walktimer*12*math.pi) + armsup,
-    --             0-.3,.1,0,0,1,0)
+    --arms
+    lovr.graphics.cube('fill',0+.3*0,0+.45+.05*math.sin(self.walktimer*12*math.pi) + armsup,
+                0+.3,.1,0,0,1,0)
+    lovr.graphics.cube('fill',0-.3*0,0+.45+.05*math.sin(self.walktimer*12*math.pi) + armsup,
+                0-.3,.1,0,0,1,0)
 
     --shadow
     -- lovr.graphics.pop()
